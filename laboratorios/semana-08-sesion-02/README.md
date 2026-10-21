@@ -46,15 +46,15 @@ Enunciado: [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv) tiene 3000 via
 
 **Respuesta 1, antes de ver la solución:** en `describe()`, ¿qué dos valores de la tabla te harían sospechar de un error sin necesidad de graficar nada?
 
-_(tu respuesta)_
+El máximo de `tarifa` (999.99) y el mínimo de `duracion_min` (−74). Una tarifa de 999.99 está muy lejos del percentil 75 (32.55) y además parece un valor de relleno, y una duración negativa es imposible. También la desviación estándar de la tarifa (70.99) es mayor que su media (31.39), señal de que unos pocos valores extremos la están inflando.
 
 **Respuesta 2:** la regla del IQR marca más de 300 viajes con tarifa atípica. ¿Esperas que todos sean errores? ¿Cómo lo averiguarías?
 
-_(tu respuesta)_
+No. El IQR solo dice que un valor es poco común, no que esté mal. Lo averiguo mirando qué tienen en común los atípicos (`value_counts` de la tarifa, origen y destino). De los 334 atípicos, solo 15 son errores (tarifa 999.99). 302 tienen una tarifa exacta de 70 en viajes entre JFK y Manhattan, que es la tarifa fija del aeropuerto, y los 17 restantes son viajes largos y reales entre JFK y Queens/Brooklyn (19 a 24 km).
 
 **La formulación completa, tal como la resuelvo yo:**
 
-_(anota aquí el script y lo que encontró, mientras se revisa en clase)_
+[`starter/EDA.py`](./starter/EDA.py) revisa tipos, faltantes y duplicados, imprime `describe()`, guarda el histograma y el boxplot de la tarifa, marca atípicos con la regla del IQR (límites −13.85 y 60.40, 334 viajes) y grafica tarifa contra distancia con y sin atípicos. Encontró dos errores confirmados: 15 tarifas de 999.99 y 10 duraciones negativas. Con los atípicos, la correlación tarifa–distancia es 0.23; al quitar solo esos errores sube a 0.96. El script corre dentro de Docker con `docker compose up --build` desde `starter/`, y las figuras quedan en `starter/data-contenedor/`.
 
 ## Durante el ConcepTest
 
@@ -76,15 +76,15 @@ Solo o en pareja. Parte de la plantilla [`plantilla-ejercicio2/explorar_relacion
 
 **Hallazgo 1: qué muestra el gráfico de distancia contra tarifa, además de la tendencia general.**
 
-_(tu hallazgo, con el número que lo confirma)_
+Además de la diagonal (correlación de 0.96), hay una línea horizontal en 70 USD: 300 viajes entre JFK y Manhattan/Harlem que pagan la tarifa fija del aeropuerto sin importar la distancia. También hay una columna vertical en distancia 0: 25 viajes que duran entre 4 y 81 minutos y cobran tarifa sin registrar kilómetros, lo que apunta a un fallo del medidor de distancia. Un modelo que solo use la distancia se equivoca en ambos grupos.
 
 **Hallazgo 2: qué pasa con la propina según el método de pago, y si crees que describe a los pasajeros o al sistema que registra los datos.**
 
-_(tu hallazgo, con el número que lo confirma)_
+Los 888 viajes en efectivo tienen propina 0 (100%), mientras que con tarjeta la propina promedio es 4.73 y ningún viaje tiene propina 0. Describe al sistema, no a los pasajeros: las propinas en efectivo no se registran. Además, 60 viajes no tienen método de pago.
 
 **Hallazgo 3: la duración tiene una correlación con la tarifa tan alta como la distancia. Si el modelo tiene que estimar la tarifa en el momento en que alguien pide el taxi, ¿puede usar la duración?**
 
-_(tu respuesta)_
+No. Su correlación con la tarifa es 0.96, pero la duración solo se conoce al terminar el viaje. Usarla sería fuga de información: el modelo se vería muy bien en las pruebas y fallaría en producción. Lo mismo pasa con la propina (0.63). La distancia estimada de la ruta sí se puede calcular al pedir el taxi.
 
 ## Ejercicio 3: explora el dataset de tu proyecto
 
@@ -94,13 +94,15 @@ Usa el archivo que tu pipeline de la Semana 7 deja listo para modelar, y la plan
 
 Reemplaza la ruta del archivo y el nombre de la columna que tu modelo va a predecir. Corre los pasos 1 a 3.
 
-_(filas, columnas, faltantes por columna, y cuántos atípicos marcó el IQR en tu objetivo)_
+Dataset: OBT del PSet 2 (`OBT.OBT_EMERGENCIAS_CANTON_DIA`, exportada de Snowflake), una fila por cantón y día. El modelo clasifica alta demanda a t+3 (`y_3`): `y_3 = 1` cuando `obj_n_emergencias_t3` supera el P90 del cantón para ese día de la semana, calculado solo con el periodo de entrenamiento. Como `y_3` todavía no existe en la OBT, el EDA usa `obj_n_emergencias_t3` como objetivo.
+
+422.912 filas × 37 columnas, 224 cantones, de julio de 2021 a agosto de 2026. Los faltantes son los esperados: rezagos al inicio de cada serie (`lag_1d` 224, `lag_7d` y `media_prev_7d` 1.568, `lag_14d` 3.136, `lag_28d` y `media_prev_28d` 6.272), objetivos al final (`obj_n_emergencias_t3` 672, `obj_n_emergencias_t7` 1.568) y `nombre_feriado` en los días que no son feriado (406.784). El IQR marcó 53.357 atípicos en `obj_n_emergencias_t3`.
 
 ### Paso 2: relaciones (10 minutos)
 
 Completa los pasos 4 y 5: la relación entre tu objetivo y la variable que esperas que más influya, y las consultas que confirman lo que encuentres.
 
-_(qué gráfico o consulta hiciste, y qué mostró)_
+Gráfico de dispersión de `obj_n_emergencias_t3` contra las emergencias de t y de t−4 en Quito (`plantilla-eda/figuras/quito_relacion_objetivo.png`). Contra t salen dos nubes separadas y la correlación es negativa (−0.33): t+3 cae en otro día de la semana, y el ciclo semanal invierte la relación. Contra t−4, que cae el mismo día de la semana que t+3, sale una diagonal clara (0.73). Las consultas del paso 5 confirman esto en Guayaquil (0.85) y Cuenca (0.66), y miden la escala por cantón y la tendencia anual.
 
 ### Paso 3: tres hallazgos que afectarían el modelado (10 minutos)
 
@@ -108,15 +110,15 @@ Para cada hallazgo, escribe qué encontraste, el número o el gráfico que lo co
 
 **Hallazgo 1:**
 
-_(tu hallazgo)_
+Los atípicos del IQR no son errores: los 53.357 corresponden a 76 cantones grandes que aparecen completos, con los 1.885 días cada uno (Quito, Guayaquil, Loja...). Quito y Guayaquil suman el 39,1% de las emergencias, mientras que 36 cantones tienen una mediana de 2 o menos por día. Por eso la correlación global entre `n_emergencias` y el objetivo (0.95) mide el tamaño del cantón, no la capacidad de predecir. **Cambio en el modelo:** no se quita ninguna fila. Cada cantón se compara con su propio P90, y las métricas se reportan por grupo de tamaño para que Quito y Guayaquil no dominen la evaluación.
 
 **Hallazgo 2:**
 
-_(tu hallazgo)_
+Hay un ciclo semanal fuerte: el domingo promedia 52,6 emergencias y el martes 35,5. Por eso `n_emergencias` y `lag_7d` tienen correlación negativa con el conteo de t+3 (Quito: −0.33 y −0.37), mientras que t−4, el mismo día de la semana que t+3, tiene 0.73 en Quito, 0.85 en Guayaquil y 0.66 en Cuenca. **Cambio en el modelo:** agregar a la OBT un rezago `lag_4d` para h=3. Para h=7 sirve `n_emergencias`, porque t ya cae el mismo día de la semana que t+7.
 
 **Hallazgo 3:**
 
-_(tu hallazgo)_
+El volumen baja con los años: de 10.342 emergencias por día en 2021 a 8.870 en 2025 (−14%). Con un P90 fijo calculado hasta junio de 2025, la tasa de `y_3 = 1` cambia según el año: 13,3% en 2021 y 5,9% en 2024. En promedio solo el 8% de los casos es clase 1. Enero de 2024 (periodo anómalo) tiene 1,4%, y un feriado en t+3 sube la tasa a 19,6% (frente a 7,6%). **Cambio en el modelo:** división temporal en lugar de aleatoria, métricas para clases desbalanceadas (precision/recall, no accuracy), evaluar un P90 móvil con ventana reciente, decidir explícitamente cómo tratar enero de 2024 y mantener `es_feriado_t3` como variable.
 
 ## Antes de la próxima sesión
 
