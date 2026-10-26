@@ -9,11 +9,7 @@
 ## Requisitos antes de esta sesión
 
 1. **El warehouse de DuckDB de la Sesión 1**, con los datos de tu proyecto ya cargados (el archivo `.duckdb` del Ejercicio 3 de la sesión pasada).
-2. Instala dbt con el adaptador de DuckDB:
-   ```
-   pip install dbt-core dbt-duckdb
-   ```
-   Verifica con:
+2. **dbt con el adaptador de DuckDB:** ya viene en el Codespace. En tu laptop, instálalo con `pip install -r requirements.txt` desde la raíz del repositorio. Verifica con:
    ```
    dbt --version
    ```
@@ -37,37 +33,36 @@ Imagina un solo archivo SQL de 200 líneas: limpia los datos crudos, calcula col
 
 _(tu respuesta)_
 
-## Ejercicio 1: la capa de staging
+## Ejercicio 1: pedidos por ciudad, en tres capas
 
-Enunciado: ya tienes `raw_pedidos` y `raw_clientes` en tu warehouse (recreadas hoy con [`starter/cargar_raw.py`](./starter/cargar_raw.py) a partir de [`starter/pedidos.csv`](./starter/pedidos.csv) y [`starter/clientes.csv`](./starter/clientes.csv), el mismo par de tablas de la sesión pasada). Un modelo de dbt es un archivo `.sql` con un `SELECT`: dbt lo convierte en una vista o una tabla según la configuración del proyecto.
+Carpeta: [`starter/ejercicio1/`](./starter/ejercicio1/), un proyecto de dbt completo sobre las mismas tablas de la Sesión 1. Ya corre de principio a fin, pero cada capa tiene un `TODO`: staging con `select *`, sin prueba sobre `stg_pedidos`, un modelo intermedio que lee las tablas crudas por su nombre, y un mart sin agregar. Córrelo una vez antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** si el modelo de staging solo selecciona columnas de la tabla cruda, sin ningún cálculo, ¿qué sentido tiene crear un modelo aparte en vez de consultar `raw_pedidos` directamente cada vez?
+```
+cd laboratorios/semana-05-sesion-02/starter/ejercicio1
+python3 cargar_raw.py
+dbt run --profiles-dir .
+dbt test --profiles-dir .
+```
 
-_(tu respuesta)_
-
-**Respuesta 2:** dbt permite declarar pruebas (`tests`) sobre una columna de un modelo, como `unique` o `not_null`, en un archivo `schema.yml`. ¿Sobre qué columna de `stg_pedidos` tendría sentido poner una prueba `unique`?
-
-_(tu respuesta)_
-
-**La formulación completa, tal como la resuelvo yo:**
-
-_(anota aquí los modelos `stg_pedidos.sql`, `stg_clientes.sql` y su `schema.yml` con las pruebas, mientras se revisan en clase)_
-
-## Ejercicio 2: la capa intermedia y la capa de marts
-
-Enunciado: con `stg_pedidos` y `stg_clientes` ya construidos, falta responder la pregunta de negocio real: cuánto se vendió por ciudad.
-
-**Respuesta 1, antes de ver la solución:** un modelo intermedio referencia a otro modelo de dbt con `{{ ref('nombre_del_modelo') }}` en vez de escribir el nombre de la tabla directamente. ¿Qué usarías, `{{ ref('stg_pedidos') }}` o el nombre de la tabla cruda `raw_pedidos`, para construir el modelo intermedio que une pedidos con clientes?
+**Respuesta 1 (TODO 1), antes de ver la solución:** si `stg_pedidos` solo selecciona columnas de `raw_pedidos`, sin ningún cálculo, ¿qué sentido tiene un modelo aparte en vez de consultar `raw_pedidos` directamente?
 
 _(tu respuesta)_
 
-**Respuesta 2:** si mañana cambias cómo se calcula `monto_total` en el modelo intermedio, ¿tienes que tocar también el modelo de marts que lo consume?
+**Respuesta 2 (TODO 2):** ¿sobre qué columna de `stg_pedidos` pondrías la prueba `unique`? ¿Qué tendría que pasar en `pedidos.csv` para que falle?
 
 _(tu respuesta)_
 
-**La formulación completa, tal como la resuelvo yo:**
+**Respuesta 3 (TODO 3):** mira el orden en que `dbt run` construyó los modelos. ¿Por qué `int_pedidos_con_cliente` salió primero, antes que los modelos de staging de los que depende? ¿Qué cambia con `ref()`?
 
-_(anota aquí `int_pedidos_con_cliente.sql`, `marts_ventas_por_ciudad.sql` y el comando para correrlos, mientras se revisan en clase)_
+_(tu respuesta)_
+
+**Respuesta 4 (TODO 4):** si mañana cambias cómo se calcula `monto_total` en el modelo intermedio, ¿tienes que tocar también el mart?
+
+_(tu respuesta)_
+
+**Lo que confirmó la salida, TODO por TODO:**
+
+_(anota el orden de `dbt run` antes y después del TODO 3, y lo que no esperabas)_
 
 ## Durante el ConcepTest
 
@@ -83,9 +78,34 @@ _(tu respuesta)_
 
 _(tu respuesta)_
 
+## Ejercicio 2: ventas por categoría, en tres capas
+
+Solo o en pareja. Carpeta: [`starter/ejercicio2/`](./starter/ejercicio2/), las ventas y productos de la Sesión 1 (con una diferencia en `ventas.csv` que vas a encontrar con una prueba). Son las mismas cuatro capas del Ejercicio 1 (TODO 1 a 4), más uno nuevo (TODO 5). Después de cada cambio, corre:
+
+```
+python3 cargar_raw.py
+dbt run --profiles-dir .
+dbt test --profiles-dir .
+python3 comprobar.py
+```
+
+`comprobar.py` imprime `OK` o `revisa` por cada TODO: complétalos hasta que todos digan `OK`.
+
+**Respuesta 1:** ¿qué prueba falló primero, y qué fila de `ventas.csv` la hizo fallar?
+
+_(tu respuesta)_
+
+**Respuesta 2 (TODO 5):** corregiste la causa en `stg_ventas`, no en `ventas.csv`. ¿Por qué ahí y no en el archivo, si el archivo es el que está mal?
+
+_(tu respuesta)_
+
+**Si terminas antes:** sin el TODO 5, ¿cuánto daba el monto de papelería en el mart, y cuánto da después? ¿Qué habría pasado con ese número si nadie hubiera escrito la prueba?
+
+_(tu respuesta)_
+
 ## Ejercicio 3: modela en capas los datos de tu propio proyecto
 
-Usa exactamente el mismo patrón de los Ejercicios 1 y 2 (staging, intermedia, marts), aplicado a la tabla que cargaste a tu warehouse en la Sesión 1. Parte de la plantilla [`plantilla-dbt/`](./plantilla-dbt/), que trae los `TODO` marcados en cada archivo en vez del proyecto en blanco.
+Usa el mismo patrón de los Ejercicios 1 y 2 (staging, intermedia, marts), aplicado a la tabla que cargaste a tu warehouse en la Sesión 1. Parte de la plantilla [`plantilla-dbt/`](./plantilla-dbt/), que trae los `TODO` marcados en cada archivo en vez del proyecto en blanco.
 
 ### Paso 1: staging (7 minutos)
 

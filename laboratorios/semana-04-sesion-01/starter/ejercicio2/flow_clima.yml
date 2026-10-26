@@ -1,0 +1,23 @@
+# Ejercicio 2: el flow que corre ingesta_clima.py, con el mismo patron del
+# Ejercicio 1. Para subirlo y revisar tu avance:
+#     bash ../subir_a_kestra.sh flow_clima.yml ingesta_clima.py
+#     python3 comprobar.py
+
+# TODO 1: id ingesta_clima, namespace proyecto.clima.
+id: TODO
+namespace: TODO
+
+tasks:
+  - id: registrar_clima
+    type: io.kestra.plugin.scripts.shell.Commands
+    containerImage: python:3.11-slim
+    namespaceFiles:
+      enabled: true
+    # TODO 2: la estacion falla 3 de cada 10 veces. Hasta 4 intentos,
+    # con 5 segundos entre cada uno.
+    commands:
+      # TODO 3: pasale a ingesta_clima.py la fecha de la ejecucion como
+      # argumento, en vez de solo imprimirla.
+      - python ingesta_clima.py
+
+# TODO 4: que corra solo todos los lunes a las 7 de la manana.

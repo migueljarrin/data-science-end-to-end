@@ -10,9 +10,9 @@ Hoy construimos juntos, en clase, la misma infraestructura dos veces: primero co
 
 ## Requisitos antes de esta sesión
 
-1. **Docker Desktop instalado y corriendo**, el mismo de la sesión pasada. Verifica con `docker --version` y `docker compose version`.
-2. **Terraform CLI instalado:** sigue la [guía oficial de instalación](https://developer.hashicorp.com/terraform/install).
-3. **Al menos 2 GB libres de espacio en disco**, para las imágenes de Postgres, pgAdmin y Python que se descargan hoy.
+1. **Docker**, el mismo de la sesión pasada. Verifica con `docker --version` y `docker compose version`.
+2. **Terraform CLI:** en el Codespace ya viene instalado, verifica con `terraform -version`. En tu laptop, sigue la [guía oficial de instalación](https://developer.hashicorp.com/terraform/install).
+3. **Al menos 2 GB libres de espacio en disco**, para las imágenes de Postgres, pgAdmin y Python que se descargan hoy (el Codespace ya tiene espacio de sobra).
 
 A diferencia de la sesión de Terraform con Google Cloud de versiones anteriores de este curso, hoy no necesitas ninguna cuenta de nube ni credenciales: toda la infraestructura corre localmente, en tu propio Docker.
 
@@ -46,18 +46,20 @@ services:
       - datos_postgres:/var/lib/postgresql/data
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:9.18
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@taxi.local
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "8080:80"
+      - "8085:80"
     depends_on:
       - pg-database
 
 volumes:
   datos_postgres:
 ```
+
+pgAdmin queda en el puerto 8085, no en el 8080: ese puerto lo usa Kestra desde la Semana 4, y en el laboratorio integrador de la Semana 7 los dos corren al mismo tiempo.
 
 **Respuesta 1, antes de correr `docker compose up`:** si quitáramos el bloque `volumes` de `pg-database` y detuviéramos los contenedores, ¿qué pasaría con los datos que hayamos cargado?
 
@@ -73,11 +75,11 @@ Levanta los dos servicios:
 docker compose up -d
 ```
 
-Abre `localhost:8080` en el navegador, inicia sesión en pgAdmin con las credenciales de arriba, y registra un servidor nuevo apuntando a `pg-database` (no `localhost`), puerto 5432, usuario y contraseña de `POSTGRES_USER`/`POSTGRES_PASSWORD`. Confirma que ves la base `taxi_db`, todavía vacía.
+Abre `localhost:8085` en el navegador (en el Codespace, desde la pestaña **Ports** de VS Code, puerto 8085), inicia sesión en pgAdmin con las credenciales de arriba, y registra un servidor nuevo apuntando a `pg-database` (no `localhost`), puerto 5432, usuario y contraseña de `POSTGRES_USER`/`POSTGRES_PASSWORD`. Confirma que ves la base `taxi_db`, todavía vacía.
 
 ## Paso 2: agregar la ingesta
 
-Los archivos de partida de esta sesión (`starter/ingest_data.py`, `starter/Dockerfile`, `starter/requirements.txt`) ya están construidos: el script descarga tres meses de datos de taxis amarillos de Nueva York (enero a marzo de 2023) desde la fuente pública de la TLC y los carga en Postgres, usando el mismo patrón de `Dockerfile` (`FROM`, `WORKDIR`, `COPY`, `RUN`, `CMD`) de la sesión pasada. Cópialos a la raíz de esta carpeta, junto a `docker-compose.yml`.
+Los archivos de partida de esta sesión (`starter/ingest_data.py`, `starter/Dockerfile`, `starter/requirements.txt`) ya están construidos: el script descarga tres meses de datos de taxis amarillos de Nueva York (enero a marzo de 2023) desde la fuente pública de la TLC y carga los primeros 300.000 viajes de cada mes en Postgres, usando el mismo patrón de `Dockerfile` (`FROM`, `WORKDIR`, `COPY`, `RUN`, `CMD`) de la sesión pasada. Cópialos a la raíz de esta carpeta, junto a `docker-compose.yml`.
 
 Agrega el tercer servicio al archivo:
 
@@ -105,7 +107,7 @@ Corre:
 docker compose up --build
 ```
 
-Sigue los logs del contenedor `ingesta`: primero reintenta la conexión un par de veces, después descarga y carga los tres meses de datos (puede tomar uno o dos minutos). Cuando termine, en pgAdmin, abre la herramienta de consultas sobre `taxi_db` y corre:
+Sigue los logs del contenedor `ingesta`: si Postgres todavía no está listo, reintenta la conexión; después descarga y carga los tres meses (uno o dos minutos). Cuando termine, en pgAdmin, abre la herramienta de consultas sobre `taxi_db` y corre:
 
 ```sql
 SELECT mes_origen, COUNT(*) FROM viajes_taxi GROUP BY mes_origen ORDER BY mes_origen;
@@ -164,7 +166,7 @@ resource "docker_image" "postgres" {
 }
 
 resource "docker_image" "pgadmin" {
-  name = "dpage/pgadmin4:latest"
+  name = "dpage/pgadmin4:9.18"
 }
 
 resource "docker_image" "ingesta" {
@@ -205,13 +207,13 @@ resource "docker_container" "pgadmin" {
   image = docker_image.pgadmin.image_id
 
   env = [
-    "PGADMIN_DEFAULT_EMAIL=admin@taxi.local",
+    "PGADMIN_DEFAULT_EMAIL=admin@example.com",
     "PGADMIN_DEFAULT_PASSWORD=admin123",
   ]
 
   ports {
     internal = 80
-    external = 8080
+    external = 8085
   }
 
   networks_advanced {
@@ -224,6 +226,10 @@ resource "docker_container" "pgadmin" {
 resource "docker_container" "ingesta" {
   name  = "ingesta"
   image = docker_image.ingesta.image_id
+
+  # La ingesta carga los datos y termina. Sin esto, Terraform espera que el
+  # contenedor siga corriendo y cada plan propone volver a arrancarlo.
+  must_run = false
 
   env = [
     "PG_HOST=pg-database",
@@ -242,7 +248,7 @@ resource "docker_container" "ingesta" {
 }
 ```
 
-Compara cada bloque contra su equivalente de `docker-compose.yml`: `docker_network` y `docker_volume` son la red y el volumen que en Compose quedaban implícitos; cada `docker_container` trae los mismos `env`, `ports` y `volumes` que su servicio, más `networks_advanced` y `depends_on` explícitos, porque Terraform no asume ninguna relación que no esté escrita.
+Compara cada bloque contra su equivalente de `docker-compose.yml`: `docker_network` y `docker_volume` son la red y el volumen que en Compose quedaban implícitos; cada `docker_container` trae los mismos `env`, `ports` y `volumes` que su servicio, más `networks_advanced` y `depends_on` explícitos, porque Terraform no asume ninguna relación que no esté escrita. `must_run = false` en la ingesta le dice a Terraform que ese contenedor termina cuando acaba la carga, y que no está roto por estar detenido.
 
 Aplica:
 
@@ -253,7 +259,7 @@ terraform plan
 terraform apply
 ```
 
-Revisa `terraform plan` antes de confirmar el `apply`: ¿coincide con lo que esperabas crear? Verifica en pgAdmin (regístrala de nuevo si hace falta) que los datos de los tres meses siguen ahí, esta vez levantados por Terraform.
+Revisa `terraform plan` antes de confirmar el `apply`: ¿coincide con lo que esperabas crear? `docker compose down -v` borró el volumen de Compose, así que Terraform parte con un volumen nuevo y vacío, y su contenedor de ingesta vuelve a cargar los tres meses. Cuando termine (`docker logs -f ingesta`), verifica en pgAdmin (regístrala de nuevo si hace falta) que están los 900.000 viajes, esta vez en la infraestructura que levantó Terraform. Después corre `terraform plan` otra vez: con todo ya creado, ¿qué esperas que diga?
 
 _(qué mostró tu `terraform plan`, y qué verificaste en pgAdmin)_
 

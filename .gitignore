@@ -1,4 +1,4 @@
-# Python (a partir de la Semana 3)
+# Python
 __pycache__/
 *.pyc
 .venv/
@@ -8,7 +8,6 @@ venv/
 # Datos y modelos locales (nunca se suben, ver PSets para dónde documentar su origen)
 data/raw/
 data/processed/
-*.parquet
 *.pkl
 
 # Editor / OS
@@ -18,3 +17,22 @@ data/processed/
 
 # Logs
 *.log
+
+# Terraform (el estado guarda las credenciales en texto plano: nunca se sube)
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Warehouse local de DuckDB (se regenera al correr cada laboratorio)
+*.duckdb
+*.duckdb.wal
+
+# dbt y Spark (artefactos que se regeneran al correr)
+target/
+dbt_packages/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Material reemplazado (no se sube)
+_to_delete/

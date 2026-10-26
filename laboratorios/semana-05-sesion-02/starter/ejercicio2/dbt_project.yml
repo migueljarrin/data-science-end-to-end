@@ -1,0 +1,16 @@
+name: 'proyecto_dbt'
+version: '1.0.0'
+config-version: 2
+profile: 'proyecto_dbt'
+
+model-paths: ["models"]
+clean-targets: ["target"]
+
+models:
+  proyecto_dbt:
+    staging:
+      +materialized: view
+    intermedia:
+      +materialized: view
+    marts:
+      +materialized: table

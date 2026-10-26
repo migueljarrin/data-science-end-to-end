@@ -1,0 +1,5 @@
+version: 2
+
+# TODO 2: pruebas unique y not_null sobre la columna que identifica cada
+# fila de stg_ventas y de stg_productos.
+models: []

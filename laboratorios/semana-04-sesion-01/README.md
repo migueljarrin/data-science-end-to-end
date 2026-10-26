@@ -8,12 +8,12 @@
 
 ## Requisitos antes de esta sesión
 
-1. **Docker Desktop instalado y corriendo**, el mismo de las sesiones pasadas.
+1. **Docker**, el mismo de las sesiones pasadas. Si trabajas en el Codespace, ábrelo para esta sesión con una máquina de 4 núcleos ("Change machine type"): Kestra y su Postgres necesitan más memoria que los laboratorios anteriores.
 2. Levanta Kestra localmente antes de la sesión, con el `docker-compose.yml` de [`starter/docker-compose.yml`](./starter/docker-compose.yml):
    ```
    docker compose up -d
    ```
-   Abre `localhost:8080` en el navegador: deberías ver la interfaz de Kestra. Si es la primera vez que arranca, puede tardar 20-30 segundos en quedar lista.
+   Abre `localhost:8080` en el navegador (en el Codespace, desde la pestaña **Ports** de VS Code, puerto 8080): deberías ver la pantalla de inicio de sesión de Kestra. Entra con el usuario `admin@kestra.io` y la contraseña `Admin1234`, definidos en el mismo `docker-compose.yml`. Si es la primera vez que arranca, puede tardar 20-30 segundos en quedar lista.
 
 Este `docker-compose.yml` es una versión simplificada del oficial de Kestra: quita el `healthcheck` de Postgres (fuera del vocabulario de Docker Compose de este curso) porque el reintento de conexión, igual que en la Sesión 2 de la semana pasada, se resuelve del lado de cada flow, no de Docker.
 
@@ -35,37 +35,32 @@ Tu script de ingesta corre perfecto cuando tú lo ejecutas a las 10 de la mañan
 
 _(tu respuesta)_
 
-## Ejercicio 1: un flow sin trigger
+## Ejercicio 1: la ingesta diaria de una fuente inestable
 
-Enunciado: el script [`starter/ingesta_simple.py`](./starter/ingesta_simple.py), sin ninguna dependencia externa, registra en un archivo que la ingesta se ejecutó hoy. Hasta ahora lo corres a mano con `python ingesta_simple.py`.
+Carpeta: [`starter/ejercicio1/`](./starter/ejercicio1/). [`ingesta_inestable.py`](./starter/ejercicio1/ingesta_inestable.py) simula una fuente de datos que falla la mitad de las veces. [`flow_ingesta.yml`](./starter/ejercicio1/flow_ingesta.yml) ya lo corre dentro de Kestra, con una imagen `python:3.11-slim` y el script subido como archivo del namespace (`namespaceFiles`), pero tiene tres `TODO`. Súbelo y ejecútalo antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** con lo que sabes de la anatomía de un flow, ¿qué tres campos mínimos necesita el archivo YAML para poder correr este script dentro de Kestra?
+```
+cd laboratorios/semana-04-sesion-01/starter/ejercicio1
+bash ../subir_a_kestra.sh flow_ingesta.yml ingesta_inestable.py
+```
 
-_(tu respuesta)_
+Después, en Kestra (`localhost:8080`, sección Flows), abre `proyecto.ingesta` → `ingesta_diaria` y presiona "Execute" tres veces.
 
-**Respuesta 2:** si corremos este flow tres veces seguidas desde el botón "Execute", ¿tenemos un flow o tres? ¿tenemos una ejecución o tres?
-
-_(tu respuesta)_
-
-**La formulación completa, tal como la resuelvo yo:**
-
-_(anota aquí el flow completo, mientras se revisa en clase)_
-
-## Ejercicio 2: reintentos y horario
-
-Enunciado: el script [`starter/ingesta_inestable.py`](./starter/ingesta_inestable.py) simula una fuente de datos real: la mitad de las veces la conexión falla y el script termina con error, la otra mitad completa la ingesta sin problema.
-
-**Respuesta 1, antes de ver la solución:** si este script falla la mitad de las veces por una razón que no depende de ti, ¿qué le agregarías al flow del Ejercicio 1 para que no dependa de que un humano lo vuelva a correr a mano cuando falla?
+**Respuesta 1, antes de ver la solución:** después de presionar "Execute" tres veces, ¿tienes un flow o tres? ¿Una ejecución o tres? ¿Cuántas esperas que fallen?
 
 _(tu respuesta)_
 
-**Respuesta 2:** si la ejecución de una noche agota sus reintentos y falla, ¿la ejecución programada de la noche siguiente también falla, o corre normal?
+**Respuesta 2 (TODO 1):** ¿qué le agregarías al flow para que una falla de la fuente no dependa de que alguien lo vuelva a correr a mano?
 
 _(tu respuesta)_
 
-**La formulación completa, tal como la resuelvo yo:**
+**Respuesta 3 (TODO 3):** con el trigger agregado, si la ejecución de una noche agota sus reintentos y falla, ¿la ejecución programada de la noche siguiente también falla, o corre normal?
 
-_(anota aquí el flow completo, con el bloque retry y el trigger Schedule, mientras se revisa en clase)_
+_(tu respuesta)_
+
+**Lo que confirmó la ejecución, TODO por TODO:**
+
+_(anota cuántos intentos viste en los logs, y qué fecha imprimió el backfill)_
 
 ## Durante el ConcepTest
 
@@ -81,29 +76,58 @@ _(tu respuesta)_
 
 _(tu respuesta)_
 
+## Ejercicio 2: la ingesta semanal de una estación de clima
+
+Solo o en pareja. Carpeta: [`starter/ejercicio2/`](./starter/ejercicio2/). [`ingesta_clima.py`](./starter/ejercicio2/ingesta_clima.py) falla 3 de cada 10 veces y recibe como argumento la fecha que está registrando. Completa los TODO 1 a 4 de [`flow_clima.yml`](./starter/ejercicio2/flow_clima.yml) con el mismo patrón del Ejercicio 1, súbelo y ejecútalo:
+
+```
+cd laboratorios/semana-04-sesion-01/starter/ejercicio2
+bash ../subir_a_kestra.sh flow_clima.yml ingesta_clima.py
+```
+
+**TODO 5:** recupera los tres últimos lunes con un backfill. En Kestra, abre el flow, ve a la pestaña **Triggers** y usa la opción de backfill del trigger de los lunes, con un rango de fechas que cubra los tres lunes anteriores a hoy.
+
+`comprobar.py` lee el flow tal como quedó en Kestra y las ejecuciones del backfill:
+
+```
+python3 comprobar.py
+```
+
+**Respuesta 1:** en los logs de una ejecución del backfill, ¿qué fecha recibió `ingesta_clima.py`: la de hoy, o la del lunes que se estaba recuperando? ¿Qué pasaría si el script usara la fecha de hoy?
+
+_(tu respuesta)_
+
+**Respuesta 2:** ¿alguna ejecución del backfill necesitó más de un intento? ¿Dónde lo ves en Kestra?
+
+_(tu respuesta)_
+
+**Si terminas antes:** si la estación estuvo caída dos semanas seguidas, ¿subirías `maxAttempts` a 50, o harías un backfill cuando vuelva? ¿Qué problema resuelve cada uno?
+
+_(tu respuesta)_
+
 ## Ejercicio 3: el flow de tu propio proyecto
 
-Usa exactamente el mismo patrón de los Ejercicios 1 y 2, aplicado al script de ingesta real de tu proyecto (el que empaquetaste en Docker la Sesión 1 de la semana pasada). Parte de la plantilla [`plantilla-flow/flow_proyecto.yml`](./plantilla-flow/flow_proyecto.yml), que trae los `TODO` marcados en vez del flow en blanco.
+Usa el mismo patrón de los Ejercicios 1 y 2, aplicado a la ingesta de tu proyecto. En vez de `python:3.11-slim` y un archivo del namespace, el flow corre la imagen de Docker que construiste en la Semana 3, Sesión 1: ahí ya están tu script y sus dependencias. Parte de la plantilla [`plantilla-flow/flow_proyecto.yml`](./plantilla-flow/flow_proyecto.yml).
 
-### Paso 1: el task que corre tu script (5 minutos)
+### Paso 1: el task que corre tu imagen (5 minutos)
 
-Completa `id`, `namespace`, y el comando real que corre tu script de ingesta dentro de `commands`.
+Confirma con `docker images` que la imagen de tu proyecto existe en tu máquina (si no, vuelve a construirla con `docker build -t <nombre>:<tag> .`). Completa `id`, `namespace`, `containerImage` con el nombre y el tag de tu imagen, y el comando que corre tu script con la ruta completa de su `WORKDIR` (por ejemplo, `python /app/ingesta.py`): Kestra corre los comandos en su propia carpeta de trabajo, no en la de tu imagen. `pullPolicy: NEVER` le dice a Kestra que use la imagen local en vez de buscarla en Docker Hub.
 
-_(tu id y namespace elegidos)_
+_(tu id, namespace e imagen)_
 
-### Paso 2: decide el retry (7 minutos)
+### Paso 2: decide el retry (5 minutos)
 
-Piensa en tu fuente de datos real: ¿es una API externa que a veces no responde? ¿un archivo que a veces todavía no está listo? Decide `maxAttempt` e `interval` según qué tan probable y qué tan larga es esa falla, y descomenta el bloque `retry`.
+Piensa en tu fuente de datos: ¿es una API externa que a veces no responde? ¿un archivo que a veces todavía no está listo? Decide `maxAttempts` e `interval` según qué tan probable y qué tan larga es esa falla, y descomenta el bloque `retry`.
 
 _(tu decisión de retry, y por qué)_
 
-### Paso 3: agrega el trigger Schedule (8 minutos)
+### Paso 3: agrega el trigger Schedule (6 minutos)
 
 Descomenta el bloque `triggers` y elige una expresión cron con la frecuencia que tenga sentido para tu proyecto. No todos los proyectos necesitan correr todos los días.
 
 _(tu expresión cron, y por qué esa frecuencia)_
 
-Sube el flow a la interfaz de Kestra (botón "Create" en la sección Flows, pega el YAML) y ejecútalo manualmente al menos una vez para confirmar que corre sin errores de sintaxis.
+Súbelo con `bash ../starter/subir_a_kestra.sh flow_proyecto.yml` desde `plantilla-flow/` (sin scripts: ya están en la imagen) y ejecútalo manualmente al menos una vez para confirmar que corre sin errores.
 
 _(qué verificaste, y si encontraste algún error)_
 

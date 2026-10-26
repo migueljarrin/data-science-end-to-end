@@ -1,0 +1,18 @@
+# Librerias de Python del curso, con version fija para que todos tengan el mismo ambiente.
+# El Codespace las instala solo al crearse. En tu laptop: pip install -r requirements.txt
+# Probadas juntas en Python 3.11 (pip check sin conflictos).
+
+numpy==1.26.4
+pandas==2.2.2
+pyarrow==16.1.0
+requests==2.32.3
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+duckdb==1.1.3
+dbt-core==1.9.1
+dbt-duckdb==1.9.2
+pyspark==3.5.3
+kafka-python==2.0.2
+matplotlib==3.9.2
+scikit-learn==1.5.2
+ipykernel==6.29.5

@@ -8,19 +8,13 @@
 
 ## Requisitos antes de esta sesión
 
-pandas ya lo tienes desde la Semana 4. Instala matplotlib:
-
-```
-pip install matplotlib
-```
-
-Verifica con:
+pandas y matplotlib ya vienen en el Codespace. En tu laptop, instálalos con `pip install -r requirements.txt` desde la raíz del repositorio. Verifica con:
 
 ```
 python3 -c "import matplotlib; print(matplotlib.__version__)"
 ```
 
-Los scripts de hoy guardan cada gráfico como imagen en una carpeta `figuras/`. También puedes correr el mismo código en un notebook de Jupyter, donde el gráfico aparece debajo de la celda.
+Los scripts de hoy guardan cada gráfico como imagen en una carpeta `figuras/`. Ábrelas desde el explorador de archivos de VS Code. También puedes correr el mismo código en un notebook de Jupyter (en el Codespace, crea un archivo `.ipynb` y elige el kernel de Python 3.11), donde el gráfico aparece debajo de la celda.
 
 ## Antes de empezar
 
@@ -42,19 +36,30 @@ _(tu respuesta)_
 
 ## Ejercicio 1: resumen, distribución y atípicos
 
-Enunciado: [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv) tiene 3000 viajes en taxi de Nueva York: fecha y hora de inicio, zona de origen y de destino, distancia, duración, pasajeros, método de pago, tarifa y propina. Primera mirada: qué contiene, cómo se distribuye la tarifa y qué valores están fuera de lo esperable.
+Archivo: [`starter/ejercicio1_explorar.py`](./starter/ejercicio1_explorar.py), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv): 3000 viajes en taxi de Nueva York, con fecha y hora de inicio, zona de origen y de destino, distancia, duración, pasajeros, método de pago, tarifa y propina. El script ya lee el archivo, arma los gráficos y los guarda en `figuras/`; faltan 4 `TODO`. Córrelo una vez antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** en `describe()`, ¿qué dos valores de la tabla te harían sospechar de un error sin necesidad de graficar nada?
+```
+cd laboratorios/semana-08-sesion-02/starter
+python3 ejercicio1_explorar.py
+```
+
+**Respuesta 1 (TODO 1), antes de ver la solución:** en `describe()`, ¿qué dos valores de la tabla te harían sospechar de un error sin necesidad de graficar nada?
 
 El máximo de `tarifa` (999.99) y el mínimo de `duracion_min` (−74). Una tarifa de 999.99 está muy lejos del percentil 75 (32.55) y además parece un valor de relleno, y una duración negativa es imposible. También la desviación estándar de la tarifa (70.99) es mayor que su media (31.39), señal de que unos pocos valores extremos la están inflando.
 
-**Respuesta 2:** la regla del IQR marca más de 300 viajes con tarifa atípica. ¿Esperas que todos sean errores? ¿Cómo lo averiguarías?
+**Respuesta 2 (TODO 2):** abre `figuras/hist_tarifa.png` después del TODO 2. ¿Por qué casi todo el histograma queda comprimido a la izquierda?
+
+Por las 15 tarifas de 999.99. El eje X tiene que llegar hasta 1000, así que cada una de las 50 barras cubre unos 20 USD. El 99.5% de los viajes cuesta 80 USD o menos y cae en las primeras 4 barras, mientras que el resto del eje queda vacío salvo por una barrita en 1000. Unos pocos valores extremos deciden la escala del gráfico y esconden la forma real de la distribución.
+
+**Respuesta 3 (TODO 3 y 4):** la regla del IQR marca más de 300 viajes con tarifa atípica. ¿Esperas que todos sean errores? ¿Cómo lo averiguarías?
 
 No. El IQR solo dice que un valor es poco común, no que esté mal. Lo averiguo mirando qué tienen en común los atípicos (`value_counts` de la tarifa, origen y destino). De los 334 atípicos, solo 15 son errores (tarifa 999.99). 302 tienen una tarifa exacta de 70 en viajes entre JFK y Manhattan, que es la tarifa fija del aeropuerto, y los 17 restantes son viajes largos y reales entre JFK y Queens/Brooklyn (19 a 24 km).
 
-**La formulación completa, tal como la resuelvo yo:**
+**Lo que confirmó la salida, TODO por TODO:**
 
-[`starter/EDA.py`](./starter/EDA.py) revisa tipos, faltantes y duplicados, imprime `describe()`, guarda el histograma y el boxplot de la tarifa, marca atípicos con la regla del IQR (límites −13.85 y 60.40, 334 viajes) y grafica tarifa contra distancia con y sin atípicos. Encontró dos errores confirmados: 15 tarifas de 999.99 y 10 duraciones negativas. Con los atípicos, la correlación tarifa–distancia es 0.23; al quitar solo esos errores sube a 0.96. El script corre dentro de Docker con `docker compose up --build` desde `starter/`, y las figuras quedan en `starter/data-contenedor/`.
+El límite superior del IQR es 60.40 USD y marca 334 viajes atípicos: 15 con la tarifa de error de captura (999.99), 302 con una tarifa exacta de 70.00 y 17 viajes largos reales. Además hay 10 duraciones negativas, el otro error confirmado. Con los atípicos, la correlación entre tarifa y distancia es 0.23; al quitar solo los errores sube a 0.96.
+
+Mi versión del análisis está en [`starter/EDA.py`](./starter/EDA.py). Revisa tipos, faltantes y duplicados, guarda el histograma, el boxplot y la dispersión de tarifa contra distancia con y sin atípicos, y corre dentro de Docker con `docker compose up --build` desde `starter/`. Las figuras quedan en `starter/data-contenedor/`.
 
 ## Durante el ConcepTest
 
@@ -72,7 +77,11 @@ _(tu respuesta)_
 
 ## Ejercicio 2: relaciones entre variables
 
-Solo o en pareja. Parte de la plantilla [`plantilla-ejercicio2/explorar_relaciones.py`](./plantilla-ejercicio2/explorar_relaciones.py) y córrela desde su carpeta (`cd plantilla-ejercicio2`, `python3 explorar_relaciones.py`): lee el mismo `starter/viajes_taxi.csv`. Quita solo los errores que el Ejercicio 1 ya confirmó y completa los 5 `TODO`: dispersión de distancia contra tarifa, propina por método de pago, correlaciones con la tarifa, y pasajeros vacíos o en 0.
+Solo o en pareja. Archivo: [`starter/ejercicio2_relaciones.py`](./starter/ejercicio2_relaciones.py), sobre el mismo `viajes_taxi.csv`. Quita solo los errores que el Ejercicio 1 ya confirmó y completa los 5 `TODO`: dispersión de distancia contra tarifa, propina por método de pago, correlaciones con la tarifa, y pasajeros vacíos o en 0. Al final, el script imprime una comprobación por TODO: completa los 5 hasta que todas digan `OK`.
+
+```
+python3 ejercicio2_relaciones.py
+```
 
 **Hallazgo 1: qué muestra el gráfico de distancia contra tarifa, además de la tendencia general.**
 

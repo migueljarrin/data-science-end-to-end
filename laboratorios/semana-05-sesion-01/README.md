@@ -9,11 +9,7 @@
 ## Requisitos antes de esta sesión
 
 1. **Python con `pandas` ya instalado**, el mismo de sesiones pasadas.
-2. Instala DuckDB:
-   ```
-   pip install duckdb
-   ```
-   Verifica con:
+2. **DuckDB:** ya viene en el Codespace. En tu laptop, instálalo con `pip install -r requirements.txt` desde la raíz del repositorio, que fija la misma versión del Codespace. Verifica con:
    ```
    python -c "import duckdb; print(duckdb.__version__)"
    ```
@@ -37,37 +33,34 @@ Un equipo de finanzas necesita generar el mismo reporte de ventas todos los lune
 
 _(tu respuesta)_
 
-## Ejercicio 1: cargar un CSV a un warehouse local y correr la primera consulta
+## Ejercicio 1: un warehouse local con pedidos y clientes
 
-Enunciado: [`starter/pedidos.csv`](./starter/pedidos.csv) tiene pedidos de una tienda (categoría, cantidad, precio unitario). Hasta ahora es un archivo plano, sin ninguna estructura de consulta.
+Archivo: [`starter/ejercicio1_warehouse.py`](./starter/ejercicio1_warehouse.py), sobre [`starter/pedidos.csv`](./starter/pedidos.csv) (pedidos de una tienda: categoría, cantidad, precio unitario) y [`starter/clientes.csv`](./starter/clientes.csv) (ciudad y segmento de cada cliente). El script ya se conecta al warehouse, imprime cada paso y cierra la conexión; faltan 4 `TODO`. Córrelo una vez antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** ¿qué necesitas para poder correr una consulta SQL de agregación (por ejemplo, monto total por categoría) sobre este archivo, sin escribir tú mismo el código que suma cada fila?
+```
+cd laboratorios/semana-05-sesion-01/starter
+python3 ejercicio1_warehouse.py
+```
 
-_(tu respuesta)_
-
-**Respuesta 2:** si cargas `pedidos.csv` a una tabla de un warehouse y el archivo original cambia después, ¿la tabla se actualiza sola, o hay que volver a cargarla?
-
-_(tu respuesta)_
-
-**La formulación completa, tal como la resuelvo yo:**
-
-_(anota aquí el script completo, mientras se revisa en clase)_
-
-## Ejercicio 2: unir dos tablas del warehouse
-
-Enunciado: [`starter/clientes.csv`](./starter/clientes.csv) tiene la ciudad y el segmento de cada cliente que aparece en `pedidos.csv`. Por separado, ninguno de los dos archivos responde "¿cuánto se vendió por ciudad?".
-
-**Respuesta 1, antes de ver la solución:** con las dos tablas ya cargadas en el mismo warehouse, ¿qué instrucción de SQL las combina en una sola consulta?
+**Respuesta 1 (TODO 1), antes de ver la solución:** sin el TODO 1, `SHOW TABLES` sale vacío y aun así el Paso 3 devuelve filas. ¿De dónde las está leyendo? ¿Qué cambia cuando `pedidos` es una tabla del warehouse?
 
 _(tu respuesta)_
 
-**Respuesta 2:** si en vez de un warehouse tuvieras los dos archivos crudos sueltos en un data lake, sin cargarlos a ninguna tabla, ¿qué tendrías que hacer distinto para responder la misma pregunta?
+**Respuesta 2 (TODO 1):** con la tabla ya creada, si alguien edita `pedidos.csv`, ¿la tabla `pedidos` se actualiza sola, o hay que volver a cargarla?
 
 _(tu respuesta)_
 
-**La formulación completa, tal como la resuelvo yo:**
+**Respuesta 3 (TODO 3):** sin el TODO 3, el Paso 3 devuelve 10 filas, una por pedido. ¿Cuántas esperas después de agregar por categoría?
 
-_(anota aquí el script completo, con el JOIN y las dos agregaciones, mientras se revisa en clase)_
+_(tu respuesta)_
+
+**Respuesta 4 (TODO 4):** ni `pedidos` ni `clientes` responden por separado "¿cuánto se vendió por ciudad?". ¿Qué instrucción de SQL las combina, y por qué columna?
+
+_(tu respuesta)_
+
+**Lo que confirmó la salida, TODO por TODO:**
+
+_(anota los números que no esperabas)_
 
 ## Durante el ConcepTest
 
@@ -80,6 +73,26 @@ _(tu voto)_
 _(tu respuesta)_
 
 **Después de discutir en pareja, ¿cambiaste de voto? ¿Por qué?**
+
+_(tu respuesta)_
+
+## Ejercicio 2: ventas por categoría
+
+Solo o en pareja. Archivo: [`starter/ejercicio2_ventas.py`](./starter/ejercicio2_ventas.py), sobre [`starter/ventas.csv`](./starter/ventas.csv) y [`starter/productos.csv`](./starter/productos.csv). Son los mismos pasos del Ejercicio 1, más uno nuevo (TODO 5). Al final, el script imprime una comprobación por TODO: completa los 5 hasta que todas digan `OK`.
+
+```
+python3 ejercicio2_ventas.py
+```
+
+**Respuesta 1:** en el Paso 3 aparece un `id_producto` que no está en `productos.csv`. ¿Cuál, y qué le pasa a esa venta en el `JOIN` del Paso 4?
+
+_(tu respuesta)_
+
+**Respuesta 2:** el monto total del Paso 4 no incluye esa venta, y la consulta no dio ningún error. ¿Cómo te darías cuenta de esto en un warehouse con millones de filas?
+
+_(tu respuesta)_
+
+**Si terminas antes:** ¿qué tipo de `JOIN` conservaría esa venta en el resultado, y qué valor tendría su `categoria`?
 
 _(tu respuesta)_
 

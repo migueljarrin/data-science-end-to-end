@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: stg_clientes
+    columns:
+      - name: id_cliente
+        tests:
+          - unique
+          - not_null
+
+  # TODO 2: agrega stg_pedidos, con las pruebas unique y not_null sobre
+  # la columna que identifica cada pedido.

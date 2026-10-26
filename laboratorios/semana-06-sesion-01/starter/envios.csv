@@ -1,0 +1,15 @@
+id_envio,ciudad,estado,peso_kg,tarifa_por_kg
+1,Quito,entregado,2.0,3.5
+2,Guayaquil,entregado,5.0,3.0
+3,Quito,devuelto,1.5,3.5
+4,Cuenca,entregado,3.0,4.0
+5,Quito,entregado,4.0,3.5
+6,Guayaquil,en_ruta,2.5,3.0
+7,Cuenca,entregado,1.0,4.0
+8,Guayaquil,entregado,6.0,3.0
+9,Quito,entregado,0.5,3.5
+10,Cuenca,devuelto,2.0,4.0
+11,Guayaquil,entregado,3.5,3.0
+12,Quito,en_ruta,1.0,3.5
+13,Cuenca,entregado,2.5,4.0
+14,Guayaquil,entregado,1.5,3.0

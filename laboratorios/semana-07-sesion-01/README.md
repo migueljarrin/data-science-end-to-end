@@ -18,6 +18,8 @@ Antes de correr nada, ubica los cinco archivos o carpetas que tu propio proyecto
 
 Si te falta alguno, ese es tu primer bloqueo: resuélvelo antes de seguir, no lo saltes. El pipeline completo depende de que cada pieza exista.
 
+Si trabajas en el Codespace, ábrelo para esta sesión con una máquina de 4 núcleos ("Change machine type"): Kestra, tu base de datos y, si tu proyecto lo usa, Redpanda corren al mismo tiempo. Kestra queda en el puerto 8080 y pgAdmin en el 8085, así que pueden estar levantados juntos.
+
 ## La cadena y el criterio de "funciona de principio a fin"
 
 Cada etapa debe entregar exactamente lo que la siguiente espera recibir, no una versión aproximada. Ese es el criterio que estás verificando en cada casilla: no "¿corre el comando sin error?", sino "¿el archivo o la tabla que produce esta etapa es el mismo que la siguiente etapa lee de verdad?".

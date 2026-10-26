@@ -9,10 +9,7 @@
 ## Requisitos antes de esta sesión
 
 1. **Docker y Docker Compose**, los mismos de la Semana 3.
-2. Instala el cliente de Python para Kafka:
-   ```
-   pip install kafka-python
-   ```
+2. **El cliente de Python para Kafka (`kafka-python`):** ya viene en el Codespace. En tu laptop, instálalo con `pip install -r requirements.txt` desde la raíz del repositorio.
 3. Levanta Redpanda desde este laboratorio:
    ```
    docker compose up -d
@@ -37,37 +34,35 @@ Un compañero de clase construye un sistema de recomendación de productos y qui
 
 _(tu respuesta)_
 
-## Ejercicio 1: producir eventos
+## Ejercicio 1: producir y consumir pedidos
 
-Enunciado: Redpanda ya corre en tu máquina. Falta publicar el primer evento a un tópico.
+Archivos: [`starter/ejercicio1_productor.py`](./starter/ejercicio1_productor.py), que arma 10 pedidos, y [`starter/ejercicio1_consumidor.py`](./starter/ejercicio1_consumidor.py), que los lee del tópico `pedidos` y los cuenta por categoría. Los dos ya corren contra Redpanda, pero tienen 4 `TODO` entre los dos. Córrelos en orden antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** con evento, tópico, productor, consumidor y broker ya definidos en clase, ¿qué necesitas crear primero para poder publicar un evento: un consumidor o un productor?
+```
+cd laboratorios/semana-06-sesion-02/starter
+python3 ejercicio1_productor.py
+python3 ejercicio1_consumidor.py
+```
 
-_(tu respuesta)_
-
-**Respuesta 2:** si corres el script del productor dos veces seguidas, ¿el tópico `pedidos` termina con 10 o con 20 eventos?
-
-_(tu respuesta)_
-
-**La formulación completa, tal como la resuelvo yo:**
-
-_(anota aquí el script completo del productor, mientras se revisa en clase)_
-
-## Ejercicio 2: consumir eventos
-
-Enunciado: con eventos ya publicados en el tópico `pedidos`, falta el lado que los consume.
-
-**Respuesta 1, antes de ver la solución:** el consumidor necesita revertir exactamente lo que hizo `value_serializer` en el productor. ¿Qué dos pasos tiene que deshacer, en qué orden?
+**Respuesta 1 (TODO 1), antes de ver la solución:** el productor imprimió los 10 eventos y el consumidor no recibió ninguno. ¿Qué le falta al productor?
 
 _(tu respuesta)_
 
-**Respuesta 2:** si corres este consumidor por segunda vez, después de que ya consumió los 10 eventos la primera vez, ¿los vuelve a mostrar?
+**Respuesta 2 (TODO 2):** con el TODO 1 resuelto, el consumidor sigue sin recibir nada si lo corres después del productor, pero sí los recibe si ya estaba corriendo cuando el productor publicó. ¿Por qué?
 
 _(tu respuesta)_
 
-**La formulación completa, tal como la resuelvo yo:**
+**Respuesta 3 (TODO 3):** ahora el consumidor imprime `b'{"id_pedido": 1, ...}'`. ¿Qué dos pasos de `serializar_evento` tiene que deshacer `deserializar_evento`, y en qué orden?
 
-_(anota aquí el script completo del consumidor, mientras se revisa en clase)_
+_(tu respuesta)_
+
+**Respuesta 4 (TODO 4):** si corres el consumidor una segunda vez, ¿vuelve a mostrar los 10 eventos? Y si corres el productor otra vez, ¿el tópico queda con 10 o con 20?
+
+_(tu respuesta)_
+
+**Lo que confirmó la salida, TODO por TODO:**
+
+_(anota el resumen final después de cada corrida)_
 
 ## Durante el ConcepTest
 
@@ -80,6 +75,27 @@ _(tu voto)_
 _(tu respuesta)_
 
 **Después de discutir en pareja, ¿cambiaste de voto? ¿Por qué?**
+
+_(tu respuesta)_
+
+## Ejercicio 2: alertas de temperatura
+
+Solo o en pareja. Archivos: [`starter/ejercicio2_productor.py`](./starter/ejercicio2_productor.py), que arma 8 lecturas de tres sensores, y [`starter/ejercicio2_consumidor.py`](./starter/ejercicio2_consumidor.py), que las lee del tópico `lecturas`. Son los mismos cuatro pasos del Ejercicio 1, más uno nuevo (TODO 5): una alerta cuando la temperatura pasa de 30 grados. Al final, el consumidor imprime una comprobación por TODO: complétalos hasta que todas digan `OK`.
+
+```
+python3 ejercicio2_productor.py
+python3 ejercicio2_consumidor.py
+```
+
+**Respuesta 1:** ¿cuántas alertas aparecieron, de qué sensor, y en qué momento las imprimió el consumidor: al final, o a medida que llegaba cada lectura?
+
+_(tu respuesta)_
+
+**Respuesta 2:** si el productor corriera todo el día enviando una lectura por minuto, ¿en qué cambiaría tu consumidor? ¿Seguiría teniendo sentido `consumer_timeout_ms`?
+
+_(tu respuesta)_
+
+**Si terminas antes:** abre dos terminales y corre el consumidor del Ejercicio 2 en las dos al mismo tiempo, y después el productor. ¿Las dos reciben las 8 lecturas, o se las reparten? Compáralo con tu voto del ConcepTest.
 
 _(tu respuesta)_
 

@@ -36,19 +36,30 @@ Convirtiendo cada patrón en una columna nueva a partir de las que ya existen. P
 
 ## Ejercicio 1: features de fecha y hora
 
-Enunciado: [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv), el mismo dataset de la sesión pasada, sin los errores confirmados. A partir de `fecha_hora_inicio`, construir hora, día de la semana, fin de semana, hora pico y la hora como ciclo, y comprobar si la hora pico aporta algo a la tarifa.
+Archivo: [`starter/ejercicio1_features_tiempo.py`](./starter/ejercicio1_features_tiempo.py), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv), el mismo dataset de la sesión pasada. El script ya quita los errores confirmados, convierte `fecha_hora_inicio` y compara la tarifa por kilómetro según la hora pico; faltan 4 `TODO`: hora, día de la semana, fin de semana, hora pico y la hora como ciclo. Córrelo una vez antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** si dejas la hora como un número del 0 al 23, ¿qué tan lejos queda la hora 23 de la hora 0 para un modelo que mide distancias entre números? ¿Y en el reloj?
+```
+cd laboratorios/semana-09-sesion-01/starter
+python3 ejercicio1_features_tiempo.py
+```
+
+**Respuesta 1 (TODO 4), antes de ver la solución:** si dejas la hora como un número del 0 al 23, ¿qué tan lejos queda la hora 23 de la hora 0 para un modelo que mide distancias entre números? ¿Y en el reloj?
 
 Como número, la hora 23 queda a 23 unidades de la hora 0: la máxima distancia posible, como si fueran las horas más diferentes del día. En el reloj están a solo 1 hora. Al convertir la hora en ciclo con `hora_sin` y `hora_cos`, la distancia entre 23 y 0 es 0.26, la misma que entre 12 y 13, mientras que las 0 y las 12, opuestas en el reloj, quedan a 2.0, la máxima distancia.
 
-**Respuesta 2:** la duración del viaje no existe al pedir el taxi, pero la hora sí. ¿Qué parte de lo que la duración le diría al modelo puede traer `es_hora_pico`?
+**Respuesta 2 (TODO 3):** sin el TODO 3, el Paso 4 muestra un solo grupo. Con la hora pico construida, ¿esperas que la tarifa por kilómetro sea más alta o más baja en hora pico? ¿Por qué, si la tarifa depende de la distancia y de la duración?
+
+Más alta. En hora pico hay más tráfico, así que cada kilómetro toma más tiempo, y como la tarifa también cobra por tiempo, cada kilómetro sale más caro. La distancia es la misma; lo que sube es la duración por kilómetro.
+
+**Respuesta 3:** la duración del viaje no existe al pedir el taxi, pero la hora sí. ¿Qué parte de lo que la duración le diría al modelo puede traer `es_hora_pico`?
 
 La duración le diría al modelo cuánto tráfico hubo: un viaje lento por kilómetro cuesta más. Eso no se sabe al pedir el taxi, pero la hora pico lo anticipa. En hora pico (días laborables de 7 a 9 y de 16 a 19), los viajes tardan 3.64 minutos por km frente a 2.79 fuera de ella (+30%), y cuestan 3.52 USD por km frente a 3.22 (+9%). `es_hora_pico` trae la parte "esperada" del tráfico; lo que no puede traer es el tráfico imprevisto de un viaje concreto.
 
-**La formulación completa, tal como la resuelvo yo:**
+**Lo que confirmó la salida, TODO por TODO:**
 
-[`starter/mi_primer_feature_eng.py`](./starter/mi_primer_feature_eng.py) quita los errores confirmados (tarifa 999.99 y duración negativa, quedan 2975 viajes), saca de `fecha_hora_inicio` la hora y el día de la semana, convierte la hora en ciclo con `hora_sin` y `hora_cos`, codifica las zonas con one-hot y el método de pago con `OrdinalEncoder`. Para comprobar la hora pico, sin contar viajes de tarifa fija ni de distancia 0: una regresión lineal con solo la distancia explica el 96.7% de la tarifa (R²), y al agregar `es_hora_pico` sube a 97.5%, con un coeficiente de +2.14 USD por viaje en hora pico. Sola, su correlación con la tarifa es casi nula (0.03): aporta en combinación con la distancia, no por sí misma.
+Paso 4, tarifa por km (mediana, sin viajes de 70 USD ni de distancia 0): 3.22 USD fuera de hora pico y 3.52 en hora pico, un 9% más. Paso 5: las 23 y las 0 están a 23 como número y a 0.26 como ciclo; las 11 y las 12 están a 1 como número y también a 0.26 como ciclo. Como ciclo, dos horas seguidas quedan siempre a la misma distancia, aunque crucen la medianoche.
+
+En mi versión, [`starter/mi_primer_feature_eng.py`](./starter/mi_primer_feature_eng.py), además comprobé la hora pico con una regresión lineal: con solo la distancia explica el 96.7% de la tarifa (R²), y al agregar `es_hora_pico` sube a 97.5%, con un coeficiente de +2.14 USD por viaje en hora pico. Sola, su correlación con la tarifa es casi nula (0.03): aporta en combinación con la distancia, no por sí misma.
 
 ## Durante el ConcepTest
 
@@ -66,7 +77,11 @@ _(tu respuesta)_
 
 ## Ejercicio 2: zona, codificación y disponibilidad
 
-Solo o en pareja. Parte de la plantilla [`plantilla-ejercicio2/features_de_zona.py`](./plantilla-ejercicio2/features_de_zona.py) y córrela desde su carpeta. Completa los 4 `TODO`.
+Solo o en pareja. Archivo: [`starter/ejercicio2_features_zona.py`](./starter/ejercicio2_features_zona.py), sobre el mismo `viajes_taxi.csv`. Completa los 4 `TODO`. Al final, el script imprime una comprobación por TODO: complétalos hasta que todas digan `OK`.
+
+```
+python3 ejercicio2_features_zona.py
+```
 
 **Respuesta 1:** ¿cuántos viajes tienen `es_tarifa_fija` en 1, y qué tarifa mínima y máxima tienen? ¿Qué te dice eso sobre lo que un modelo lineal puede aprender con esta columna?
 

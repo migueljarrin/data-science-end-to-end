@@ -1,3 +1,7 @@
+# Ejercicio 3: el flow de la ingesta de tu proyecto.
+# Corre la imagen de Docker que construiste en la Semana 3, Sesion 1. Antes
+# de subirlo, confirma que la imagen existe en tu maquina: docker images
+
 # TODO: dale a este flow un id y un namespace propios de tu proyecto.
 id: TODO
 namespace: TODO
@@ -5,15 +9,21 @@ namespace: TODO
 tasks:
   - id: TODO
     type: io.kestra.plugin.scripts.shell.Commands
-    # TODO: agrega el bloque retry, pensando en qué tan inestable es tu fuente de datos real.
+    # TODO: el nombre y el tag de la imagen de tu proyecto (docker build -t ...).
+    containerImage: TODO_imagen:TODO_tag
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      pullPolicy: NEVER
+    # TODO: agrega el bloque retry, pensando en que tan inestable es tu fuente de datos.
     # retry:
     #   type: constant
-    #   maxAttempt: TODO
+    #   maxAttempts: TODO
     #   interval: TODO
     commands:
-      # TODO: reemplaza por el comando real que corre tu script de ingesta.
       - echo "Procesando datos para {{ trigger.date ?? execution.startDate }}"
-      - python TODO.py
+      # TODO: el comando que corre tu script dentro de la imagen, con la ruta
+      # completa de su WORKDIR (por ejemplo, python /app/ingesta.py).
+      - python /app/TODO.py
 
 # TODO: agrega un trigger Schedule con la frecuencia adecuada para tu proyecto (no todos necesitan correr todos los dias).
 # triggers:

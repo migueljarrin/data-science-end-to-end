@@ -9,7 +9,7 @@ services:
       - datos_postgres:/var/lib/postgresql
 
   kestra:
-    image: kestra/kestra:latest
+    image: kestra/kestra:v2.0.7
     user: "root"
     command: server standalone
     volumes:
@@ -25,6 +25,10 @@ services:
             username: kestra
             password: k3str4
         kestra:
+          server:
+            basic-auth:
+              username: admin@kestra.io
+              password: Admin1234
           repository:
             type: postgres
           storage:

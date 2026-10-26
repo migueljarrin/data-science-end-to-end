@@ -8,7 +8,7 @@
 
 ## Requisitos antes de esta sesión
 
-Confirma que tienes pandas instalado (`pip install pandas` si hace falta) y acceso al dataset real de tu proyecto, aunque sea en una versión parcial o de muestra.
+Confirma que tienes pandas (ya viene en el Codespace; en tu laptop, `pip install -r requirements.txt` desde la raíz del repositorio) y acceso al dataset real de tu proyecto, aunque sea en una versión parcial o de muestra.
 
 ## Antes de empezar
 
@@ -28,37 +28,30 @@ Tu modelo entrena sin ningún error, y las métricas se ven razonables. ¿Eso si
 
 _(tu respuesta)_
 
-## Ejercicio 1: duplicados
+## Ejercicio 1: diagnóstico completo de un archivo de sensores
 
-Enunciado: el archivo [`starter/inscripciones.csv`](./starter/inscripciones.csv) tiene algunas filas que aparecen más de una vez, exactamente iguales en todas sus columnas.
+Archivo: [`starter/ejercicio1_diagnostico.py`](./starter/ejercicio1_diagnostico.py), sobre [`starter/lecturas_sensores.csv`](./starter/lecturas_sensores.csv). El script ya lee el archivo, imprime cada paso y guarda el resultado; faltan las líneas que hacen el diagnóstico, marcadas como `TODO 1` a `TODO 4`. Córrelo una vez antes de tocar nada:
 
-**Respuesta 1, antes de ver la solución:** ¿qué método de pandas usarías para saber cuántas filas están exactamente repetidas, antes de eliminar ninguna?
+```
+cd laboratorios/semana-04-sesion-02/starter
+python3 ejercicio1_diagnostico.py
+```
 
-_(tu respuesta)_
-
-**Respuesta 2:** ¿por qué crees que existen esas filas duplicadas en este dataset: son eventos reales que coinciden, o algo salió mal en el proceso que las generó?
-
-_(tu respuesta)_
-
-**La formulación completa, tal como la resuelvo yo:**
-
-_(anota aquí el código y la salida, mientras se revisan en clase)_
-
-## Ejercicio 2: valores faltantes, tipos y fechas mezcladas
-
-Enunciado: el archivo [`starter/sensores.csv`](./starter/sensores.csv) tiene celdas vacías, un valor `N/D` en la columna que debería ser numérica, y fechas escritas en dos formatos distintos mezclados en la misma columna.
-
-**Respuesta 1, antes de ver la solución:** si una columna que debería ser numérica aparece como texto en `dtypes`, ¿qué esperarías encontrar dentro de esa columna?
+**Respuesta 1 (TODO 1), antes de ver la solución:** sin el TODO 1, el script dice que quedan 10 filas. Mirando el CSV, ¿cuántas esperas que queden después de quitar las filas repetidas, y con qué método de pandas las contarías antes de quitarlas?
 
 _(tu respuesta)_
 
-**Respuesta 2:** si en vez de detectar el formato de fecha explícitamente usaras una conversión automática de formato mixto, ¿qué podría pasar con una fecha ambigua como `01/02/2026`?
+**Respuesta 2 (TODO 2 y 3):** `isna()` va a contar 1 temperatura faltante. ¿Cuántas esperas después de convertir `temperatura` a número con `errors="coerce"`, y de dónde sale la diferencia?
 
 _(tu respuesta)_
 
-**La formulación completa, tal como la resuelvo yo:**
+**Respuesta 3 (TODO 4):** sin el TODO 4, el script convierte las fechas con `pd.to_datetime` sin indicar formato. ¿Qué fecha le asignó a S3 (`01/02/2026`) y a S8 (`03/02/2026`)? ¿Apareció algún error?
 
-_(anota aquí el código y la salida, mientras se revisan en clase)_
+_(tu respuesta)_
+
+**Lo que confirmó la salida, TODO por TODO:**
+
+_(anota los números que no esperabas)_
 
 ## Durante el ConcepTest
 
@@ -71,6 +64,26 @@ _(tu voto)_
 _(tu respuesta)_
 
 **Después de discutir en pareja, ¿cambiaste de voto? ¿Por qué?**
+
+_(tu respuesta)_
+
+## Ejercicio 2: pedidos de una tienda
+
+Solo o en pareja. Archivo: [`starter/ejercicio2_pedidos.py`](./starter/ejercicio2_pedidos.py), sobre [`starter/pedidos_tienda.csv`](./starter/pedidos_tienda.csv). Son los mismos pasos del Ejercicio 1 sobre otro archivo, más uno nuevo (TODO 5). Al final, el script imprime una comprobación por TODO: completa los 5 hasta que todas digan `OK`.
+
+```
+python3 ejercicio2_pedidos.py
+```
+
+**Respuesta 1:** la columna `monto` usa dos marcadores distintos para un dato que no existe. ¿Cuáles son, y cuántos de ellos contó `isna()` antes de convertir?
+
+_(tu respuesta)_
+
+**Respuesta 2:** después de quitar los duplicados, el TODO 5 encuentra un `pedido_id` que todavía aparece dos veces. ¿Por qué `duplicated()` no lo marcó? ¿Qué necesitarías saber del negocio para decidir cuál de las dos filas conservar?
+
+_(tu respuesta)_
+
+**Si terminas antes:** `cantidad` también tiene faltantes, pero `dtypes` la muestra como `float64` aunque todas sus cantidades son enteras. ¿Por qué?
 
 _(tu respuesta)_
 
