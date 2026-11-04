@@ -17,6 +17,16 @@ import duckdb, kafka, matplotlib, pandas, pyspark, sklearn
 print(f"pandas {pandas.__version__} | duckdb {duckdb.__version__} | pyspark {pyspark.__version__}")
 print(f"scikit-learn {sklearn.__version__} | matplotlib {matplotlib.__version__} | kafka-python {kafka.__version__}")
 PY
+jupyter lab --version | sed -n '1s/^/jupyterlab /p'
+jupyter kernelspec list | sed -n '/python3/s/^ */kernel de notebooks: /p'
+python -m mlflow --version
+# El servidor de MLflow se levanta al iniciar el contenedor, despues de esta
+# verificacion: al crear el Codespace es normal que todavia no responda.
+if curl -fsS "${MLFLOW_TRACKING_URI:-http://127.0.0.1:5050}/health" >/dev/null 2>&1; then
+  echo "servidor de MLflow: responde en ${MLFLOW_TRACKING_URI:-http://127.0.0.1:5050}"
+else
+  echo "servidor de MLflow: no responde todavia (se levanta solo al iniciar; a mano: bash .devcontainer/mlflow-server.sh)"
+fi
 
 echo
 echo "Ambiente listo. Si algo de lo anterior fallo, avisame antes de la proxima sesion."

@@ -14,7 +14,7 @@ pandas y matplotlib ya vienen en el Codespace. En tu laptop, instálalos con `pi
 python3 -c "import matplotlib; print(matplotlib.__version__)"
 ```
 
-Los scripts de hoy guardan cada gráfico como imagen en una carpeta `figuras/`. Ábrelas desde el explorador de archivos de VS Code. También puedes correr el mismo código en un notebook de Jupyter (en el Codespace, crea un archivo `.ipynb` y elige el kernel de Python 3.11), donde el gráfico aparece debajo de la celda.
+Los laboratorios de hoy son notebooks de Jupyter, como el diagnóstico de la Semana 4: cada gráfico aparece debajo de la celda que lo dibuja. Una exploración se lee para decidir qué hacer con los datos; por eso va en un notebook y no en un script.
 
 ## Antes de empezar
 
@@ -36,18 +36,13 @@ _(tu respuesta)_
 
 ## Ejercicio 1: resumen, distribución y atípicos
 
-Archivo: [`starter/ejercicio1_explorar.py`](./starter/ejercicio1_explorar.py), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv): 3000 viajes en taxi de Nueva York, con fecha y hora de inicio, zona de origen y de destino, distancia, duración, pasajeros, método de pago, tarifa y propina. El script ya lee el archivo, arma los gráficos y los guarda en `figuras/`; faltan 4 `TODO`. Córrelo una vez antes de tocar nada:
-
-```
-cd laboratorios/semana-08-sesion-02/starter
-python3 ejercicio1_explorar.py
-```
+Notebook: [`starter/ejercicio1_explorar.ipynb`](./starter/ejercicio1_explorar.ipynb), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv): 3000 viajes en taxi de Nueva York, con fecha y hora de inicio, zona de origen y de destino, distancia, duración, pasajeros, método de pago, tarifa y propina. Ya lee el archivo y arma los gráficos; faltan 4 `TODO`. Córrelo completo una vez antes de tocar nada (**Run All**).
 
 **Respuesta 1 (TODO 1), antes de ver la solución:** en `describe()`, ¿qué dos valores de la tabla te harían sospechar de un error sin necesidad de graficar nada?
 
 El máximo de `tarifa` (999.99) y el mínimo de `duracion_min` (−74). Una tarifa de 999.99 está muy lejos del percentil 75 (32.55) y además parece un valor de relleno, y una duración negativa es imposible. También la desviación estándar de la tarifa (70.99) es mayor que su media (31.39), señal de que unos pocos valores extremos la están inflando.
 
-**Respuesta 2 (TODO 2):** abre `figuras/hist_tarifa.png` después del TODO 2. ¿Por qué casi todo el histograma queda comprimido a la izquierda?
+**Respuesta 2 (TODO 2):** mira el histograma después del TODO 2. ¿Por qué casi todo el histograma queda comprimido a la izquierda?
 
 Por las 15 tarifas de 999.99. El eje X tiene que llegar hasta 1000, así que cada una de las 50 barras cubre unos 20 USD. El 99.5% de los viajes cuesta 80 USD o menos y cae en las primeras 4 barras, mientras que el resto del eje queda vacío salvo por una barrita en 1000. Unos pocos valores extremos deciden la escala del gráfico y esconden la forma real de la distribución.
 
@@ -77,11 +72,7 @@ _(tu respuesta)_
 
 ## Ejercicio 2: relaciones entre variables
 
-Solo o en pareja. Archivo: [`starter/ejercicio2_relaciones.py`](./starter/ejercicio2_relaciones.py), sobre el mismo `viajes_taxi.csv`. Quita solo los errores que el Ejercicio 1 ya confirmó y completa los 5 `TODO`: dispersión de distancia contra tarifa, propina por método de pago, correlaciones con la tarifa, y pasajeros vacíos o en 0. Al final, el script imprime una comprobación por TODO: completa los 5 hasta que todas digan `OK`.
-
-```
-python3 ejercicio2_relaciones.py
-```
+Solo o en pareja. Notebook: [`starter/ejercicio2_relaciones.ipynb`](./starter/ejercicio2_relaciones.ipynb), sobre el mismo `viajes_taxi.csv`. Quita solo los errores que el Ejercicio 1 ya confirmó y completa los 5 `TODO`: dispersión de distancia contra tarifa, propina por método de pago, correlaciones con la tarifa, y pasajeros vacíos o en 0. La última celda imprime una comprobación por TODO: completa los 5 hasta que todas digan `OK`.
 
 **Hallazgo 1: qué muestra el gráfico de distancia contra tarifa, además de la tendencia general.**
 
@@ -97,11 +88,11 @@ No. Su correlación con la tarifa es 0.96, pero la duración solo se conoce al t
 
 ## Ejercicio 3: explora el dataset de tu proyecto
 
-Usa el archivo que tu pipeline de la Semana 7 deja listo para modelar, y la plantilla [`plantilla-eda/explorar_proyecto.py`](./plantilla-eda/explorar_proyecto.py).
+Usa el archivo que tu pipeline de la Semana 7 deja listo para modelar. Copia la plantilla [`plantilla-eda/explorar_proyecto.ipynb`](./plantilla-eda/explorar_proyecto.ipynb) a la carpeta de tu proyecto: el notebook es tu entregable, con el código, lo que mostró y lo que concluyes en el mismo lugar.
 
 ### Paso 1: resumen y variable objetivo (5 minutos)
 
-Reemplaza la ruta del archivo y el nombre de la columna que tu modelo va a predecir. Corre los pasos 1 a 3.
+Reemplaza la ruta del archivo y el nombre de la columna que tu modelo va a predecir. Corre los pasos 1 a 3: filas, columnas, faltantes por columna, la distribución del objetivo y cuántos atípicos marca el IQR.
 
 Dataset: OBT del PSet 2 (`OBT.OBT_EMERGENCIAS_CANTON_DIA`, exportada de Snowflake), una fila por cantón y día. El modelo clasifica alta demanda a t+3 (`y_3`): `y_3 = 1` cuando `obj_n_emergencias_t3` supera el P90 del cantón para ese día de la semana, calculado solo con el periodo de entrenamiento. Como `y_3` todavía no existe en la OBT, el EDA usa `obj_n_emergencias_t3` como objetivo.
 
@@ -109,13 +100,13 @@ Dataset: OBT del PSet 2 (`OBT.OBT_EMERGENCIAS_CANTON_DIA`, exportada de Snowflak
 
 ### Paso 2: relaciones (10 minutos)
 
-Completa los pasos 4 y 5: la relación entre tu objetivo y la variable que esperas que más influya, y las consultas que confirman lo que encuentres.
+Completa el paso 4: la relación entre tu objetivo y la variable que esperas que más influya.
 
 Gráfico de dispersión de `obj_n_emergencias_t3` contra las emergencias de t y de t−4 en Quito (`plantilla-eda/figuras/quito_relacion_objetivo.png`). Contra t salen dos nubes separadas y la correlación es negativa (−0.33): t+3 cae en otro día de la semana, y el ciclo semanal invierte la relación. Contra t−4, que cae el mismo día de la semana que t+3, sale una diagonal clara (0.73). Las consultas del paso 5 confirman esto en Guayaquil (0.85) y Cuenca (0.66), y miden la escala por cantón y la tendencia anual.
 
 ### Paso 3: tres hallazgos que afectarían el modelado (10 minutos)
 
-Para cada hallazgo, escribe qué encontraste, el número o el gráfico que lo confirma, y qué cambia en el modelo por su causa (una fila que quitas, una columna que no puedes usar, una variable que hay que transformar).
+En el paso 5 del notebook, para cada hallazgo: una celda de código con el número o el gráfico que lo confirma, y debajo, en la celda de texto, qué encontraste y qué cambia en el modelo por su causa (una fila que quitas, una columna que no puedes usar, una variable que hay que transformar). Antes de hacer commit, reinicia el kernel y corre todo.
 
 **Hallazgo 1:**
 
@@ -128,6 +119,10 @@ Hay un ciclo semanal fuerte: el domingo promedia 52,6 emergencias y el martes 35
 **Hallazgo 3:**
 
 El volumen baja con los años: de 10.342 emergencias por día en 2021 a 8.870 en 2025 (−14%). Con un P90 fijo calculado hasta junio de 2025, la tasa de `y_3 = 1` cambia según el año: 13,3% en 2021 y 5,9% en 2024. En promedio solo el 8% de los casos es clase 1. Enero de 2024 (periodo anómalo) tiene 1,4%, y un feriado en t+3 sube la tasa a 19,6% (frente a 7,6%). **Cambio en el modelo:** división temporal en lugar de aleatoria, métricas para clases desbalanceadas (precision/recall, no accuracy), evaluar un P90 móvil con ventana reciente, decidir explícitamente cómo tratar enero de 2024 y mantener `es_feriado_t3` como variable.
+
+**Ruta de tu notebook de exploración en tu fork:**
+
+_(tu respuesta)_
 
 ## Antes de la próxima sesión
 

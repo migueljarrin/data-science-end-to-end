@@ -14,7 +14,9 @@ pandas y matplotlib, de la sesión pasada. numpy se instala junto con pandas; ve
 python3 -c "import numpy; print(numpy.__version__)"
 ```
 
-Ten a mano tus 3 hallazgos de la exploración de la Semana 8, Sesión 2: las features de hoy salen de ahí.
+Ten a mano tu notebook de exploración de la Semana 8, Sesión 2: las features de hoy salen de tus 3 hallazgos.
+
+Los laboratorios de hoy siguen siendo notebooks: diseñar una feature es probar varias ideas y mirar cuál aporta. La próxima sesión, las features que se queden pasan a un script, que es lo que corre en producción.
 
 ## Antes de empezar
 
@@ -36,12 +38,7 @@ Convirtiendo cada patrón en una columna nueva a partir de las que ya existen. P
 
 ## Ejercicio 1: features de fecha y hora
 
-Archivo: [`starter/ejercicio1_features_tiempo.py`](./starter/ejercicio1_features_tiempo.py), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv), el mismo dataset de la sesión pasada. El script ya quita los errores confirmados, convierte `fecha_hora_inicio` y compara la tarifa por kilómetro según la hora pico; faltan 4 `TODO`: hora, día de la semana, fin de semana, hora pico y la hora como ciclo. Córrelo una vez antes de tocar nada:
-
-```
-cd laboratorios/semana-09-sesion-01/starter
-python3 ejercicio1_features_tiempo.py
-```
+Notebook: [`starter/ejercicio1_features_tiempo.ipynb`](./starter/ejercicio1_features_tiempo.ipynb), sobre [`starter/viajes_taxi.csv`](./starter/viajes_taxi.csv), el mismo dataset de la sesión pasada. Ya quita los errores confirmados, convierte `fecha_hora_inicio` y compara la tarifa por kilómetro según la hora pico; faltan 4 `TODO`: hora, día de la semana, fin de semana, hora pico y la hora como ciclo. Córrelo completo una vez antes de tocar nada (**Run All**).
 
 **Respuesta 1 (TODO 4), antes de ver la solución:** si dejas la hora como un número del 0 al 23, ¿qué tan lejos queda la hora 23 de la hora 0 para un modelo que mide distancias entre números? ¿Y en el reloj?
 
@@ -77,11 +74,7 @@ _(tu respuesta)_
 
 ## Ejercicio 2: zona, codificación y disponibilidad
 
-Solo o en pareja. Archivo: [`starter/ejercicio2_features_zona.py`](./starter/ejercicio2_features_zona.py), sobre el mismo `viajes_taxi.csv`. Completa los 4 `TODO`. Al final, el script imprime una comprobación por TODO: complétalos hasta que todas digan `OK`.
-
-```
-python3 ejercicio2_features_zona.py
-```
+Solo o en pareja. Notebook: [`starter/ejercicio2_features_zona.ipynb`](./starter/ejercicio2_features_zona.ipynb), sobre el mismo `viajes_taxi.csv`. Completa los 4 `TODO`. La última celda imprime una comprobación por TODO: complétalos hasta que todas digan `OK`.
 
 **Respuesta 1:** ¿cuántos viajes tienen `es_tarifa_fija` en 1, y qué tarifa mínima y máxima tienen? ¿Qué te dice eso sobre lo que un modelo lineal puede aprender con esta columna?
 
@@ -97,17 +90,17 @@ One-hot crea 8 columnas, una por zona; la ordinal, 1 sola columna con valores de
 
 ## Ejercicio 3: dos features para tu proyecto
 
-Usa el mismo archivo de la exploración de la Semana 8 y la plantilla [`plantilla-features/features_proyecto.py`](./plantilla-features/features_proyecto.py).
+Usa el mismo archivo de tu exploración de la Semana 8 y copia la plantilla [`plantilla-features/features_proyecto.ipynb`](./plantilla-features/features_proyecto.ipynb) a la carpeta de tu proyecto. Todo lo que pide este ejercicio queda en el notebook: el código de cada feature, la evidencia y la justificación en las celdas de texto.
 
 ### Paso 1: el momento de la predicción (5 minutos)
 
-Escribe qué predice tu modelo y en qué momento: qué información existe en ese instante y cuál todavía no.
+En la primera celda de texto, escribe qué predice tu modelo y en qué momento: qué información existe en ese instante y cuál todavía no.
 
 El modelo predice, al cierre del día t, si un cantón tendrá demanda alta de emergencias del ECU 911 en t+3 (`y_3 = 1` cuando el conteo de t+3 supera el P90 del cantón para ese día de la semana, calculado solo con entrenamiento). En ese momento existen los conteos hasta t (`n_emergencias` y por servicio), los rezagos y medias previas, el calendario y los feriados futuros (`es_feriado_t3`). Todavía no existen los conteos de t+1 a t+3: `obj_n_emergencias_t3` y `obj_n_emergencias_t7` solo sirven para construir la etiqueta.
 
 ### Paso 2: construye las 2 features (15 minutos)
 
-Completa la plantilla con 2 columnas nuevas, derivadas de las existentes. Al menos una tiene que salir de uno de tus hallazgos de la exploración.
+Crea 2 columnas nuevas, derivadas de las existentes, cada una en su celda y con su evidencia (una correlación, una diferencia de promedios). Al menos una tiene que salir de uno de tus hallazgos de la exploración. Si pruebas una idea que no aporta, deja la celda y escribe por qué la descartas: también es evidencia.
 
 Código completo en [`plantilla-features/features_proyecto.py`](./plantilla-features/features_proyecto.py).
 
@@ -127,7 +120,7 @@ datos["momento_feriado_t3"] = np.select(
 
 ### Paso 3: justifica cada feature (5 minutos)
 
-Para cada una: de qué hallazgo o conocimiento del dominio sale, qué evidencia muestra que aporta (una correlación, una diferencia de promedios), y por qué existe en el momento de predecir. Si alguna es categórica, di qué codificación usarías según el modelo que planeas entrenar.
+Debajo de cada feature: de qué hallazgo o conocimiento del dominio sale, qué evidencia muestra que aporta, y por qué existe en el momento de predecir. Si alguna es categórica, di qué codificación usarías según el modelo que planeas entrenar. Antes de hacer commit, reinicia el kernel y corre todo.
 
 **Feature 1:**
 
@@ -136,6 +129,10 @@ Para cada una: de qué hallazgo o conocimiento del dominio sale, qué evidencia 
 **Feature 2:**
 
 `momento_feriado_t3`: si t+3 es `feriado`, `vispera` (t+4 es feriado), `dia_despues` (t+2 fue feriado) o `normal`. Sale del conocimiento del dominio: las vísperas de feriado traen viajes, fiestas y más tránsito, y la OBT solo marcaba el feriado (`es_feriado_t3`), no la víspera. Evidencia, tasa de `y_3 = 1`: feriado 19.6% (16.128 días), víspera 13.9% (10.304), día después 8.9% (10.304) y normal 7.4% (386.176). La víspera casi duplica la tasa de un día normal. Existe al predecir porque el calendario de feriados se publica con anticipación. Es categórica: con una regresión logística usaría one-hot, porque la ordinal inventaría un orden entre las categorías; con un modelo de árboles cualquiera de las dos funciona.
+
+**Ruta de tu notebook de features en tu fork:**
+
+_(tu respuesta)_
 
 ## Antes de la próxima sesión
 
