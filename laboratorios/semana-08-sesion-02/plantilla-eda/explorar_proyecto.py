@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,8 +9,10 @@ os.makedirs("figuras", exist_ok=True)
 
 # OBT del PSet 2 (ECU 911), exportada desde Snowflake: OBT.OBT_EMERGENCIAS_CANTON_DIA.
 # Los codigos DPA se leen como texto para no perder el cero inicial (0101 = Cuenca).
+# El CSV va en data/raw/ de la raiz del repo (esta en .gitignore, no se sube).
+RUTA_DATOS = Path(__file__).resolve().parents[3] / "data" / "raw" / "obt_emergencias_canton_dia.csv"
 datos = pd.read_csv(
-    r"C:\Users\DELL\Downloads\obt_emergencias_canton_dia.csv",
+    RUTA_DATOS,
     dtype={"cod_canton": str, "cod_provincia": str},
     parse_dates=["fecha"],
 )

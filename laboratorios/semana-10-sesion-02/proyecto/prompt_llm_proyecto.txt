@@ -1,0 +1,47 @@
+Predices si un canton de Ecuador tendra alta demanda de emergencias del ECU 911 dentro de 3 dias (t+3). Alta demanda significa que las emergencias de ese dia superan el umbral_p90 del canton para ese dia de la semana. emergencias_t-4 es el ultimo dia que cayo el mismo dia de la semana que t+3; nivel_vs_umbral es el promedio de los ultimos 4 dias iguales dividido por el umbral. Abajo hay 30 casos con su respuesta (1 alta, 0 normal) y 10 casos sin respuesta. Responde solo con 10 numeros entre 0 y 1, la probabilidad de alta demanda, uno por linea, en el mismo orden, sin texto adicional.
+
+Casos con respuesta:
+canton,dia_de_t+3,feriado_en_t+3,umbral_p90,emergencias_t-4,media_ultimos_7_dias,media_ultimos_28_dias,nivel_vs_umbral,alta_demanda
+YANTZAZA,sabado,normal,17.0,17.0,11.86,9.79,0.81,1
+OÑA,viernes,normal,3.0,1.0,1.0,0.93,0.25,0
+ATACAMES,domingo,normal,65.2,95.0,52.57,41.93,1.14,1
+SUSCAL,martes,normal,2.2,0.0,1.14,1.0,0.0,1
+SIGCHOS,lunes,normal,6.0,0.0,3.29,3.07,0.33,0
+ZAMORA,martes,normal,17.0,20.0,18.43,18.46,0.68,1
+LORETO,lunes,normal,11.2,10.0,5.86,6.57,0.56,0
+EL CHACO,miercoles,normal,6.0,0.0,1.57,3.89,0.5,0
+IBARRA,miercoles,normal,231.2,214.0,227.29,218.86,0.9,0
+ROCAFUERTE,jueves,normal,13.0,6.0,8.29,8.79,0.65,0
+PAQUISHA,domingo,normal,7.0,2.0,2.14,2.64,0.43,0
+ARENILLAS,domingo,normal,31.0,20.0,14.86,14.43,0.69,0
+NARANJAL,jueves,normal,42.2,30.0,36.0,37.25,0.7,0
+SANTIAGO,jueves,normal,7.0,5.0,6.29,4.68,0.57,1
+CALUMA,viernes,normal,15.3,19.0,13.86,12.32,0.83,0
+GONZANAMA,martes,normal,5.0,3.0,3.0,2.96,0.45,1
+VINCES,sabado,normal,36.0,26.0,25.86,25.43,0.81,0
+MORONA,sabado,normal,69.3,56.0,53.43,51.96,0.83,0
+QUIJOS,jueves,normal,8.0,6.0,5.57,6.36,0.88,0
+EL TAMBO,sabado,normal,7.0,5.0,2.71,2.89,0.61,0
+PIMAMPIRO,martes,normal,8.0,1.0,5.43,6.18,0.38,1
+SARAGURO,jueves,normal,9.2,4.0,3.86,4.82,0.52,0
+SANTA ROSA,viernes,normal,54.3,41.0,40.86,47.25,0.87,1
+GUALAQUIZA,sabado,normal,16.0,12.0,8.86,9.0,0.64,0
+SAQUISILI,viernes,feriado,15.0,11.0,9.57,9.21,0.72,0
+LA TRONCAL,lunes,feriado,37.0,27.0,34.86,26.68,0.76,1
+GUALACEO,domingo,normal,38.0,23.0,14.57,15.43,0.61,0
+PALENQUE,miercoles,normal,5.0,4.0,3.86,4.54,0.55,0
+GUARANDA,miercoles,normal,62.2,53.0,66.86,60.57,0.88,1
+CARLOS JULIO AROSEMENA TOLA,viernes,normal,2.0,2.0,0.71,0.82,0.5,0
+
+Casos sin respuesta:
+canton,dia_de_t+3,feriado_en_t+3,umbral_p90,emergencias_t-4,media_ultimos_7_dias,media_ultimos_28_dias,nivel_vs_umbral
+PEDRO VICENTE MALDONADO,domingo,normal,11.0,1.0,3.71,4.39,0.48
+SUCUA,domingo,normal,27.0,23.0,19.57,19.14,1.04
+SAQUISILI,sabado,normal,14.0,12.0,12.86,10.89,0.79
+SALCEDO,martes,feriado,28.2,25.0,31.0,29.64,0.99
+COTACACHI,viernes,normal,20.0,28.0,24.29,26.71,1.27
+CUENCA,martes,dia_despues,427.2,309.0,408.29,422.54,0.83
+PALORA,sabado,normal,12.0,2.0,5.29,5.18,0.4
+QUININDE,domingo,normal,67.0,42.0,35.86,35.68,0.78
+SAMBORONDON,viernes,normal,61.0,53.0,48.86,48.29,0.95
+SIGSIG,jueves,normal,9.0,5.0,3.86,5.0,0.56

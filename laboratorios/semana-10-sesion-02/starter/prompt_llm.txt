@@ -1,0 +1,57 @@
+Estimas tarifas de taxi en dolares. Abajo hay 30 viajes con su tarifa real y 20 viajes sin tarifa. Responde solo con 20 numeros, uno por linea, en el mismo orden de los viajes sin tarifa, sin texto adicional. La distancia esta en kilometros; si falta, el valor esta vacio.
+
+Viajes con tarifa:
+zona_origen,zona_destino,distancia_km,pasajeros,hora,es_fin_de_semana,metodo_pago,tarifa
+Midtown,Queens,10.95,2.0,17,0,tarjeta,34.66
+Brooklyn,Lower Manhattan,10.62,1.0,19,0,tarjeta,33.62
+Queens,Harlem,9.83,1.0,5,1,efectivo,32.03
+Midtown,Midtown,0.94,5.0,11,0,tarjeta,7.46
+Midtown,Upper East Side,4.21,1.0,13,0,tarjeta,16.83
+Brooklyn,Lower Manhattan,9.29,1.0,12,0,efectivo,28.35
+Brooklyn,Queens,11.82,1.0,18,0,tarjeta,37.98
+Harlem,Upper West Side,3.95,1.0,12,0,efectivo,15.97
+Queens,Midtown,12.54,1.0,10,0,tarjeta,36.92
+Midtown,Upper West Side,3.7,1.0,22,0,tarjeta,11.64
+Upper West Side,Midtown,5.49,4.0,14,1,tarjeta,17.93
+Upper West Side,Upper East Side,3.09,1.0,12,0,tarjeta,12.89
+Midtown,Upper West Side,4.51,1.0,0,0,tarjeta,17.76
+Midtown,Queens,10.67,1.0,14,1,tarjeta,32.32
+Upper West Side,Upper East Side,3.65,1.0,8,0,tarjeta,14.45
+JFK Airport,Lower Manhattan,25.63,5.0,5,0,tarjeta,70.0
+Lower Manhattan,Midtown,5.6,2.0,15,1,tarjeta,16.79
+Upper West Side,Upper East Side,2.45,1.0,16,0,tarjeta,10.51
+Brooklyn,Harlem,9.57,1.0,13,1,efectivo,29.07
+Lower Manhattan,Upper West Side,6.97,1.0,0,0,tarjeta,21.61
+Lower Manhattan,Midtown,4.97,1.0,15,0,efectivo,18.03
+Midtown,Upper West Side,4.18,1.0,11,0,tarjeta,16.69
+Queens,Upper East Side,13.27,1.0,12,1,efectivo,39.78
+Harlem,Upper East Side,5.22,3.0,0,0,tarjeta,17.79
+Upper East Side,Upper East Side,1.11,3.0,18,0,tarjeta,7.02
+Lower Manhattan,Upper East Side,6.82,2.0,23,0,tarjeta,22.6
+Lower Manhattan,Queens,10.75,1.0,12,1,tarjeta,33.09
+Midtown,Upper West Side,3.65,1.0,16,0,tarjeta,14.75
+JFK Airport,Upper East Side,25.23,1.0,10,1,tarjeta,70.0
+Midtown,Midtown,1.85,3.0,17,0,tarjeta,10.08
+
+Viajes sin tarifa:
+zona_origen,zona_destino,distancia_km,pasajeros,hora,es_fin_de_semana,metodo_pago
+Lower Manhattan,Midtown,3.73,2.0,23,0,tarjeta
+Midtown,JFK Airport,26.23,,21,0,tarjeta
+Midtown,Midtown,2.08,1.0,15,1,efectivo
+Harlem,Brooklyn,6.14,1.0,15,0,tarjeta
+Brooklyn,Midtown,7.74,1.0,8,0,efectivo
+Harlem,Lower Manhattan,12.23,1.0,19,1,tarjeta
+Lower Manhattan,Lower Manhattan,1.53,1.0,10,1,tarjeta
+Midtown,Upper West Side,5.16,1.0,18,0,tarjeta
+Upper East Side,Harlem,4.18,3.0,22,0,tarjeta
+Harlem,Midtown,6.14,2.0,12,1,tarjeta
+Lower Manhattan,Midtown,5.16,1.0,21,0,tarjeta
+Upper West Side,Midtown,2.91,2.0,19,1,tarjeta
+JFK Airport,JFK Airport,1.01,1.0,18,0,efectivo
+Lower Manhattan,Midtown,5.56,1.0,8,0,tarjeta
+JFK Airport,Midtown,24.29,1.0,12,0,efectivo
+Midtown,Brooklyn,9.22,,7,0,efectivo
+Upper East Side,Upper West Side,3.02,1.0,21,0,tarjeta
+JFK Airport,Midtown,37.29,1.0,6,1,tarjeta
+Midtown,Midtown,0.4,2.0,18,0,efectivo
+Midtown,Upper East Side,4.37,,18,1,tarjeta

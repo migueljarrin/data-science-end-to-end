@@ -1,9 +1,13 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
 # OBT del PSet 2 (ECU 911), la misma de la exploracion de la Semana 8.
+# El CSV va en data/raw/ de la raiz del repo (esta en .gitignore, no se sube).
+RUTA_DATOS = Path(__file__).resolve().parents[3] / "data" / "raw" / "obt_emergencias_canton_dia.csv"
 datos = pd.read_csv(
-    r"C:\Users\DELL\Downloads\obt_emergencias_canton_dia.csv",
+    RUTA_DATOS,
     dtype={"cod_canton": str, "cod_provincia": str},
     parse_dates=["fecha"],
 )

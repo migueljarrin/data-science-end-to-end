@@ -1,0 +1,5 @@
+modelo,mae_entrenamiento,mae_prueba,brecha,segundos
+linea base,13.1998,12.5308,-0.669,0.01
+arbol sin limite,0.0029,1.7017,1.6988,0.017
+arbol max_depth=8,1.0098,1.2728,0.263,0.01
+bosque aleatorio,0.4739,1.3016,0.8276,1.247

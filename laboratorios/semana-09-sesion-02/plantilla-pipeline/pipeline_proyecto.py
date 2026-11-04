@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -7,8 +9,10 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # OBT del PSet 2 (ECU 911). Las 2 features de la sesion pasada se agregan abajo,
 # con el mismo codigo de semana-09-sesion-01/plantilla-features.
+# El CSV va en data/raw/ de la raiz del repo (esta en .gitignore, no se sube).
+RUTA_DATOS = Path(__file__).resolve().parents[3] / "data" / "raw" / "obt_emergencias_canton_dia.csv"
 datos = pd.read_csv(
-    r"C:\Users\DELL\Downloads\obt_emergencias_canton_dia.csv",
+    RUTA_DATOS,
     dtype={"cod_canton": str, "cod_provincia": str},
     parse_dates=["fecha"],
 )

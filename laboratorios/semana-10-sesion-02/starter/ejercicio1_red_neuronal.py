@@ -66,32 +66,46 @@ def evaluar(nombre, modelo):
     print(f"{nombre:20s} entrenamiento {mae_ent:7.4f}   prueba {mae_prueba:7.4f}   {segundos:6.2f} s")
     return pipeline
 
+def main():
+    ensamblaje = evaluar("gradient boosting", GradientBoostingRegressor(random_state=42))
 
-ensamblaje = evaluar("gradient boosting", GradientBoostingRegressor(random_state=42))
+    # TODO 1: una red neuronal (MLPRegressor) con una capa oculta de 64
+    # neuronas, hasta 1000 iteraciones y random_state=42.
+    red = evaluar("red neuronal", MLPRegressor(hidden_layer_sizes=(64,), max_iter=1000, random_state=42))
 
-# TODO 1: una red neuronal (MLPRegressor) con una capa oculta de 64
-# neuronas, hasta 1000 iteraciones y random_state=42.
-red = evaluar("red neuronal", MLPRegressor(hidden_layer_sizes=(64,), random_state=42))
+    # TODO 2: parametros_red, cuantos numeros aprendio la red: la suma de los
+    # tamanos (.size) de todas las matrices de coefs_ y todos los vectores
+    # de intercepts_ del paso "modelo".
+    modelo_red=red.named_steps["modelo"]
+    parametros_red=0
 
-# TODO 2: parametros_red, cuantos numeros aprendio la red: la suma de los
-# tamanos (.size) de todas las matrices de coefs_ y todos los vectores
-# de intercepts_ del paso "modelo".
-parametros_red = None
+    for iteracion in modelo_red.coefs_:
+        parametros_red += iteracion.size
 
-# TODO 3: importancias, una serie de pandas con feature_importances_ del
-# ensamblaje, indexada por los nombres de columna que produce la
-# preparacion (get_feature_names_out), ordenada de mayor a menor.
-importancias = None
+    for intercepto in modelo_red.intercepts_:
+        parametros_red += intercepto.size
 
-print()
-print(pd.DataFrame(resultados).to_string(index=False))
-print()
-if parametros_red is None:
-    print("Parametros de la red: pendiente")
-else:
-    print("Parametros de la red:", parametros_red)
-if importancias is None:
-    print("Importancias del ensamblaje: pendiente")
-else:
-    print("Las 3 columnas mas importantes para el ensamblaje:")
-    print(importancias.head(3).round(4).to_string())
+    #parametros_red = sum(layer.size for layer in modelo_red.coefs_) + sum(intercept.size for intercept in modelo_red.intercepts_)
+
+    # TODO 3: importancias, una serie de pandas con feature_importances_ del
+    # ensamblaje, indexada por los nombres de columna que produce la
+    # preparacion (get_feature_names_out), ordenada de mayor a menor.
+    importancias = pd.Series(ensamblaje.named_steps["modelo"].feature_importances_,
+                             index=ensamblaje.named_steps["preparar"].get_feature_names_out()).sort_values(ascending=False)
+
+
+    print()
+    print(pd.DataFrame(resultados).to_string(index=False))
+    print()
+    if parametros_red is None:
+        print("Parametros de la red: pendiente")
+    else:
+        print("Parametros de la red:", parametros_red)
+    if importancias is None:
+        print("Importancias del ensamblaje: pendiente")
+    else:
+        print("Las 3 columnas mas importantes para el ensamblaje:")
+        print(importancias.head(3).round(4).to_string())
+
+if __name__ == "__main__":
+    main()
