@@ -48,19 +48,25 @@ Notebook: [`starter/ejercicio1_registrar_corridas.ipynb`](./starter/ejercicio1_r
 
 **Respuesta 1 (antes de los TODO):** sin resolver, el notebook entrena los tres modelos e imprime sus errores. ¿Cuál de los dos gradient boosting tiene razón? ¿Qué parte de la salida te permite saberlo, y qué parte no?
 
-_(tu respuesta)_
+Ninguno está equivocado: los dos miden bien su propio conjunto de prueba, y son conjuntos distintos. El mío da 1.2754 de error en prueba (división con semilla 42) y el del compañero 1.1867 (semilla 7). La salida lo deja ver solo porque `evaluar` imprime la semilla de la división (`division 42` frente a `division  7`): con eso sé que no midieron sobre los mismos viajes y que los números no se pueden comparar. Lo que la salida no dice es todo lo demás: si usaron el mismo CSV, los mismos hiperparámetros o la misma versión de las librerías. Y al reiniciar el kernel, esa salida desaparece.
 
 **Respuesta 2 (TODO 2 y 3):** de todo lo que se puede registrar de una corrida, ¿qué crees que explica la diferencia entre los dos gradient boosting? ¿Qué parámetro esperas ver distinto en la tabla del paso 5?
 
-_(tu respuesta)_
+La división de los datos: el mismo modelo, evaluado sobre 595 viajes distintos, da otro error. Espero ver distinto `semilla_division` (42 frente a 7), y en cambio iguales `huella_datos` (mismo CSV) y `n_estimators` (mismo modelo). Así fue en la tabla: lo único que cambia entre los dos gradient boosting es la semilla.
 
 **Respuesta 3 (TODO 4):** el registro ya tiene los parámetros y las métricas. ¿Para qué guardar además el modelo entrenado?
 
-_(tu respuesta)_
+Porque los parámetros y las métricas describen el modelo, pero no son el modelo. Con el artefacto guardado puedo cargar exactamente el objeto que produjo ese número y volver a predecir sin reentrenar: sirve para comprobar el resultado (como en el paso 5 del Ejercicio 2), para auditar sus predicciones y para llevarlo a producción. Reentrenar no garantiza el mismo modelo si cambian las librerías, la máquina o una semilla que no quedó registrada. MLflow además guarda junto al modelo las versiones de las librerías con que se entrenó (`requirements.txt`).
 
 **Lo que mostró la tabla del paso 5:**
 
-_(anota el error en prueba, la semilla de la división y la huella de los datos de cada corrida)_
+| corrida | `run_id` | semilla de la división | huella de los datos | error en prueba (MAE) |
+|---|---|---|---|---|
+| gradient boosting (compañero) | `edfe017186ab4d22ba2002e8d1b8952f` | 7 | `4800204d50c0` | 1.1867 |
+| gradient boosting | `a9f2b5597d9e4813953f36847266c351` | 42 | `4800204d50c0` | 1.2754 |
+| bosque aleatorio | `5d10752501c9458f90647c3c08ddc50d` | 42 | `4800204d50c0` | 1.3016 |
+
+Los tres usan el mismo CSV (misma huella). Los dos gradient boosting tienen los mismos hiperparámetros (`n_estimators` = 100) y solo cambia la semilla de la división: la diferencia de 0.089 USD entre ellos se debe a los viajes que les tocaron en prueba, no al modelo.
 
 ## Durante el ConcepTest
 
@@ -82,19 +88,19 @@ Solo o en pareja. Notebook: [`starter/ejercicio2_comparar_y_elegir.ipynb`](./sta
 
 **Respuesta 1:** ¿qué modelo quedó primero en el registro, y por cuánto le gana al segundo?
 
-_(tu respuesta)_
+La red neuronal, con 1.1695 USD de error en prueba. El segundo es el gradient boosting, con 1.2754: la red se equivoca 0.106 USD menos por viaje, un 8.3% menos. Después vienen el bosque aleatorio (1.3016), Ridge (2.5565) y la línea base (12.5308).
 
 **Respuesta 2:** el paso 5 carga el modelo ganador desde el registro y vuelve a calcular su error. ¿Qué te garantiza que coincida con el número registrado? ¿Qué no te garantiza sobre ese modelo?
 
-_(tu respuesta)_
+Me garantiza que el artefacto guardado es el mismo modelo que produjo la métrica registrada, y que la evaluación es reproducible: cargado desde el registro y aplicado a los mismos 595 viajes de prueba, da exactamente el mismo error (1.1695052296355013 en los dos casos). No me garantiza que el modelo sea bueno con viajes nuevos, ni que siga siendo el mejor con otra división: el error se midió sobre una sola división de 595 viajes, y el Ejercicio 1 mostró que solo cambiar la semilla mueve el error del gradient boosting en 0.089 USD, casi lo mismo que separa a la red del segundo lugar (0.106).
 
 **Respuesta 3:** si mañana alguien cambia una fila de `viajes_features.csv` y vuelve a entrenar, ¿cómo lo notarías mirando solo el registro?
 
-_(tu respuesta)_
+Por el parámetro `huella_datos`: es el hash MD5 del archivo, así que cambiar un solo byte de `viajes_features.csv` cambia la huella. Las corridas nuevas tendrían una huella distinta de `4800204d50c0`, y sabría que sus errores no se pueden comparar con los de hoy, aunque el modelo y la semilla sean los mismos.
 
 **Si terminas antes:** abre la interfaz de MLflow (pestaña **Ports**, puerto 5050), entra al experimento `tarifa-taxis-comparacion`, selecciona las cinco corridas y compáralas lado a lado con **Compare**. Además del error, ¿qué te dice el registro de la red neuronal que no te diría una tabla escrita a mano?
 
-_(tu respuesta)_
+Todos sus hiperparámetros, también los que no escribí y quedaron con el valor por defecto (activación `relu`, optimizador `adam`, `alpha` = 0.0001, tasa de aprendizaje inicial 0.001, tamaño de lote automático), junto a la semilla de la división, la huella de los datos y el tiempo de entrenamiento: 4.0 s, unas 20 veces más que el gradient boosting (0.19 s). Además tiene el modelo guardado, con las versiones de las librerías con que se entrenó, para volver a cargarlo. Una tabla a mano tendría el error y, con suerte, la capa de 64 neuronas.
 
 ## Ejercicio 3: el registro de tu proyecto
 
@@ -119,11 +125,26 @@ La tabla de corridas de tu experimento, exportada con `mlflow.search_runs(...).t
 
 **¿Qué modelo elegiste como final? Escribe su `run_id` y los números del registro que sostienen la decisión.**
 
-_(tu respuesta)_
+Notebook: [`semana-09-sesion-02/plantilla-pipeline/experimentos_proyecto.ipynb`](../semana-09-sesion-02/plantilla-pipeline/experimentos_proyecto.ipynb), al lado de mi [`pipeline_proyecto.py`](../semana-09-sesion-02/plantilla-pipeline/pipeline_proyecto.py), que ahora tiene la preparación y la división en funciones (`cargar_y_dividir`, `construir_preparacion`). Tabla: [`corridas_proyecto.csv`](../semana-09-sesion-02/plantilla-pipeline/corridas_proyecto.csv). Experimento `ecu911-alta-demanda-t3`; métrica: precisión promedio (AP), porque solo el 8% de los casos es alta demanda.
+
+| corrida | AP entrenamiento | AP prueba | brecha | segundos |
+|---|---|---|---|---|
+| red neuronal (32,) | 0.2021 | **0.2425** | −0.0404 | 12.3 |
+| **bosque min_samples_leaf=100** (final) | 0.2514 | 0.2327 | 0.0187 | 13.4 |
+| logística C=0.01 | 0.1537 | 0.2252 | −0.0715 | 3.5 |
+| logística C=1 | 0.1537 | 0.2249 | −0.0712 | 5.7 |
+| bosque sin límite | 1.0000 | 0.1830 | 0.8170 | 13.6 |
+| regla: t−4 superó el P90 (línea base) | 0.0902 | 0.1163 | −0.0261 | 0.0 |
+| dummy (tasa de clase 1) | 0.0808 | 0.0787 | 0.0022 | 0.7 |
+
+Elegí el bosque regularizado, `run_id` **`a7c9689b915a4eb7ba39e5ba381ef6cb`**, marcado con `candidato` = `final`. Duplica la AP de la línea base (0.2327 frente a 0.1163) y no se sobreajusta (brecha de 0.0187, frente a 0.8170 del bosque sin límite). Cargado desde el registro reproduce su AP exacta (0.2326863296). La red neuronal saca más AP en prueba, pero solo por 0.0098, y en este registro entrena casi igual de rápido (12.3 s frente a 13.4 s), así que la razón para no elegirla es la explicabilidad: el bosque muestra que decide sobre todo por `nivel_vs_umbral_t3`, algo que un planificador del ECU 911 puede revisar. La diferencia de 0.0098 sale de una sola división por fecha; antes de cambiar de modelo la comprobaría con otros cortes.
 
 **Si otra persona clona tu repositorio, ¿qué necesita para obtener exactamente el mismo número? ¿Qué de eso quedó registrado en MLflow y qué no?**
 
-_(tu respuesta)_
+Necesita cuatro cosas: el mismo CSV, el mismo código, el mismo ambiente y las mismas decisiones de división y de semillas.
+
+- **Quedó registrado:** las decisiones (`fecha_corte` = 2025-07-01, `division` = por fecha, filas de entrenamiento y de prueba), todos los hiperparámetros, incluido `random_state` = 42, y la huella del CSV (`7624e6f357a7`), que permite comprobar que se tiene el mismo archivo. Junto al modelo, MLflow guardó el ambiente: Python 3.11.17, scikit-learn 1.5.2, numpy 1.26.4 y pandas 2.2.2 (`requirements.txt` y `conda.yaml` del artefacto).
+- **No quedó registrado:** el CSV en sí. Solo la huella: el archivo está en `data/raw/`, que no se sube a git, así que hay que volver a exportarlo de Snowflake (`OBT.OBT_EMERGENCIAS_CANTON_DIA`), y si el pipeline del PSet 2 cargó meses nuevos, la huella ya no coincidirá. Tampoco el código: MLflow no registró el commit de git, porque el notebook corre a través de Jupyter (`mlflow.source.name` apunta a `ipykernel_launcher.py`), así que hay que saber qué versión de `pipeline_proyecto.py` y del notebook se usó. Y el registro mismo (`.mlflow/`) tampoco se sube a git: quien clone el repositorio tiene el CSV de corridas, pero no los modelos guardados.
 
 ## Antes de la próxima sesión
 
