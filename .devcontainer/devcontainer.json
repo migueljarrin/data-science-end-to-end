@@ -34,14 +34,20 @@
     "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
   },
 
-  "forwardPorts": [8080, 8085, 5050],
+  // Solo MLflow corre siempre. Kestra, pgAdmin, Postgres y Redpanda los levanta cada
+  // laboratorio con docker compose, y el servicio de prediccion, uvicorn o docker run.
+  // VS Code detecta su puerto al arrancar y lo muestra en Ports con esta etiqueta. Cualquier otro puerto (los que abren VS Code y los
+  // kernels de Jupyter para uso interno) no se reenvia ni aparece en Ports.
+  "forwardPorts": [5050],
   "portsAttributes": {
-    "8080": { "label": "Kestra (Semana 4)", "onAutoForward": "notify" },
-    "8085": { "label": "pgAdmin (Semana 3)", "onAutoForward": "notify" },
     "5050": { "label": "MLflow (Semana 11)", "onAutoForward": "notify" },
-    "5432": { "label": "Postgres", "onAutoForward": "silent" },
+    "8000": { "label": "Servicio de predicción (Semana 12)", "onAutoForward": "notify" },
+    "8080": { "label": "Kestra (Semanas 4 y 7)", "onAutoForward": "notify" },
+    "8085": { "label": "pgAdmin (Semanas 3 y 7)", "onAutoForward": "notify" },
+    "5432": { "label": "Postgres (Semanas 3 y 7)", "onAutoForward": "silent" },
     "9092": { "label": "Redpanda / Kafka (Semana 6)", "onAutoForward": "silent" }
   },
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
 
   // La instalacion pesada va en onCreateCommand (compatible con prebuilds de Codespaces);
   // la verificacion corre despues y se puede repetir a mano: bash .devcontainer/verificar.sh

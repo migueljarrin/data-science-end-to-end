@@ -20,6 +20,8 @@ PY
 jupyter lab --version | sed -n '1s/^/jupyterlab /p'
 jupyter kernelspec list | sed -n '/python3/s/^ */kernel de notebooks: /p'
 python -m mlflow --version
+python -c "import fastapi; print(f'fastapi {fastapi.__version__}')"
+pytest --version
 # El servidor de MLflow se levanta al iniciar el contenedor, despues de esta
 # verificacion: al crear el Codespace es normal que todavia no responda.
 if curl -fsS "${MLFLOW_TRACKING_URI:-http://127.0.0.1:5050}/health" >/dev/null 2>&1; then

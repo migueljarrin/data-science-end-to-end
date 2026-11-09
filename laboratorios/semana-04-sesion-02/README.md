@@ -82,7 +82,7 @@ _(tu respuesta)_
 
 ## Ejercicio 3: diagnóstico del dataset de tu proyecto
 
-Copia la plantilla [`plantilla-diagnostico/diagnostico_proyecto.ipynb`](./plantilla-diagnostico/diagnostico_proyecto.ipynb) a la carpeta de tu proyecto. Ahí corres sobre tu propio dataset las mismas verificaciones de los Ejercicios 1 y 2 (`duplicated()`, `isna()`, `dtypes`, conversión con `errors="coerce"`, revisión manual de formatos mezclados), y documentas lo que encuentres en las celdas de texto, debajo de la verificación que lo muestra.
+Copia la plantilla [`plantilla-diagnostico/diagnostico_proyecto.ipynb`](./plantilla-diagnostico/diagnostico_proyecto.ipynb) a `psets/proyecto/calidad/`. Ahí corres sobre tu propio dataset las mismas verificaciones de los Ejercicios 1 y 2 (`duplicated()`, `isna()`, `dtypes`, conversión con `errors="coerce"`, revisión manual de formatos mezclados), y documentas lo que encuentres en las celdas de texto, debajo de la verificación que lo muestra.
 
 El resultado de hoy es el diagnóstico documentado y justificado, no todavía la limpieza completa implementada: antes de corregir hay que entender qué se está corrigiendo y por qué, como muestra el ConcepTest de esta sesión. La limpieza que decidas aquí pasa a un script de tu pipeline en la Semana 7.
 

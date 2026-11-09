@@ -8,13 +8,15 @@ Este laboratorio no tiene tres ejercicios con dificultad creciente, como los de 
 
 ## Antes de empezar: reúne lo que ya tienes
 
-Antes de correr nada, ubica los cinco archivos o carpetas que tu propio proyecto ya generó en semanas anteriores:
+Antes de correr nada, confirma que los cinco archivos o carpetas que tu propio proyecto ya generó en semanas anteriores están en [`psets/proyecto/`](../../psets/README.md), cada uno en su carpeta:
 
-1. El Dockerfile de tu proyecto (Semana 3, Sesión 1).
-2. El `docker-compose.yml` o `main.tf` de tu infraestructura (Semana 3, Sesión 2).
-3. El flow de Kestra de tu pipeline de ingesta (Semana 4, Sesión 1).
-4. Tu notebook de diagnóstico de calidad (Semana 4, Sesión 2). Hoy, las decisiones de limpieza que documentaste ahí pasan a un script (`limpiar.py`, o el nombre que elijas): esta etapa corre sola dentro del pipeline, y un pipeline no abre notebooks ni sabe en qué orden corriste sus celdas. El script lleva solo las líneas que limpian, sin las celdas que usaste para mirar los datos.
-5. El script que carga tu archivo limpio a tu warehouse de DuckDB (Semana 5, Sesión 1), tu proyecto de dbt (Semana 5, Sesión 2) y tu job de Spark sobre el histórico (Semana 6, Sesión 1).
+1. El Dockerfile de tu proyecto (Semana 3, Sesión 1), en la raíz de `psets/proyecto/`.
+2. El `docker-compose.yml` o `main.tf` de tu infraestructura (Semana 3, Sesión 2), en `infra/`.
+3. El flow de Kestra de tu pipeline de ingesta (Semana 4, Sesión 1), en `orquestacion/`.
+4. Tu notebook de diagnóstico de calidad (Semana 4, Sesión 2), en `calidad/`. Hoy, las decisiones de limpieza que documentaste ahí pasan a un script (`calidad/limpiar.py`), que deja el archivo limpio en `data/processed/`: esta etapa corre sola dentro del pipeline, y un pipeline no abre notebooks ni sabe en qué orden corriste sus celdas. El script lleva solo las líneas que limpian, sin las celdas que usaste para mirar los datos.
+5. El script que carga tu archivo limpio a tu warehouse de DuckDB (Semana 5, Sesión 1) y tu proyecto de dbt (Semana 5, Sesión 2), en `warehouse/`, y tu job de Spark sobre el histórico (Semana 6, Sesión 1), en `procesamiento/`.
+
+Si alguno quedó dentro de la carpeta de un laboratorio, muévelo con `git mv` a su carpeta de `psets/proyecto/`. Las etapas 1 y 2 (contenedor e infraestructura) vienen del PSet 1; de la 3 a la 8, lo que verificas hoy es lo que entregas en el PSet 2.
 
 Si te falta alguno, ese es tu primer bloqueo: resuélvelo antes de seguir, no lo saltes. El pipeline completo depende de que cada pieza exista.
 

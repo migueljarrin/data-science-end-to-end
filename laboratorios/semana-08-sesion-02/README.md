@@ -88,7 +88,7 @@ No. Su correlación con la tarifa es 0.96, pero la duración solo se conoce al t
 
 ## Ejercicio 3: explora el dataset de tu proyecto
 
-Usa el archivo que tu pipeline de la Semana 7 deja listo para modelar. Copia la plantilla [`plantilla-eda/explorar_proyecto.ipynb`](./plantilla-eda/explorar_proyecto.ipynb) a la carpeta de tu proyecto: el notebook es tu entregable, con el código, lo que mostró y lo que concluyes en el mismo lugar.
+Usa el archivo que tu pipeline de la Semana 7 deja listo para modelar. Copia la plantilla [`plantilla-eda/explorar_proyecto.ipynb`](./plantilla-eda/explorar_proyecto.ipynb) a `psets/proyecto/modelado/`: el notebook es tu entregable, con el código, lo que mostró y lo que concluyes en el mismo lugar.
 
 ### Paso 1: resumen y variable objetivo (5 minutos)
 
