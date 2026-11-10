@@ -44,11 +44,14 @@ def test_una_fila_por_pago():
     puntuados = puntuar_lote(modelo_de_prueba(), pagos, "abc123")
     # Comprueba que hay una fila por pago, con los mismos id_pago y en el
     # mismo orden.
+    assert len(puntuados) == len(pagos)
+    assert list(puntuados["id_pago"]) == list(pagos["id_pago"])
 
 
 def test_probabilidades_entre_0_y_1():
     puntuados = puntuar_lote(modelo_de_prueba(), pagos_de_prueba(), "abc123")
     # Comprueba que toda probabilidad_fraude esta entre 0 y 1.
+    assert puntuados["probabilidad_fraude"].between(0, 1).all()
 
 
 def test_cola_de_revision():
@@ -60,3 +63,4 @@ def test_cola_de_revision():
     cola = a_revisar(puntuados, 0.10)
     # Comprueba que en la cola quedan los pagos 4, 2 y 3, en ese orden: el
     # 0.10 entra porque el umbral incluye el limite, y el 0.05 no.
+    assert list(cola["id_pago"]) == [4, 2, 3]
