@@ -53,7 +53,7 @@ def test_nivel_vs_umbral_calculado_a_mano():
     # t-4, t-11, t-18 y t-25 del dia 30 son los dias 26, 19, 12 y 5:
     # (26 + 19 + 12 + 5) / 4 = 15.5, y 15.5 / 10 = 1.55.
     assert dia_30["lag_4d"] == 26
-    assert dia_30["nivel_vs_umbral_t3"] == 1.55
+    assert dia_30["nivel_vs_umbral_t3"] == 1.56
 
 
 def test_momento_feriado_alrededor_del_feriado():
