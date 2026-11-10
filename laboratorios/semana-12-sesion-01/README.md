@@ -137,7 +137,9 @@ El archivo [`.github/workflows/pruebas.yml`](../../.github/workflows/pruebas.yml
 
 **Pega el enlace a la ejecución de GitHub Actions donde pasan tus pruebas:**
 
-_(tu respuesta)_
+https://github.com/migueljarrin/data-science-end-to-end/actions/runs/42744965203
+
+Es la ejecución del último commit, después de arreglar la prueba rota. Corre las 5 pruebas de [`psets/proyecto/modelado/test_pipeline_proyecto.py`](../../psets/proyecto/modelado/test_pipeline_proyecto.py) sobre mi [`pipeline_proyecto.py`](../../psets/proyecto/modelado/pipeline_proyecto.py), con datos de un cantón escritos a mano: que el modelo no recibe la etiqueta ni el conteo de t+3, que `nivel_vs_umbral_t3` da el valor calculado a mano (1.55), que `momento_feriado_t3` marca bien la víspera, el feriado y el día después, que cambiar días futuros no cambia las features de un día, y que la preparación acepta una región que no vio al entrenar. La primera ejecución con las pruebas también pasó: https://github.com/migueljarrin/data-science-end-to-end/actions/runs/42744567245
 
 **¿Qué patrón elegiste para tu proyecto, y qué número de latencia lo decide?**
 
@@ -145,7 +147,7 @@ Por lotes, una vez al día. Lo explico en [`psets/proyecto/docs/despliegue.md`](
 
 **Rompe a propósito una de tus pruebas (cambia un valor esperado), haz push y mira qué pasa en GitHub. Después arréglala. ¿Qué te dijo GitHub, y dónde lo viste?**
 
-_(tu respuesta)_
+Cambié el valor esperado de `nivel_vs_umbral_t3` de 1.55 a 1.56 e hice push. GitHub marcó el commit con una X roja: la ejecución https://github.com/migueljarrin/data-science-end-to-end/actions/runs/42744737861 terminó en `failure`. Lo vi en la pestaña **Actions** del fork y junto al commit en la lista de commits: el paso "Correr las pruebas de psets/proyecto" falló con `Process completed with exit code 1`, porque pytest encontró la prueba `test_nivel_vs_umbral_calculado_a_mano` en rojo. Volví a poner 1.55, hice push, y la ejecución siguiente quedó en verde. Esa X roja también confirma que GitHub corre de verdad mis pruebas: el workflow pasa en verde cuando no encuentra ninguna, así que una marca verde sola no lo probaba.
 
 ## Antes de la próxima sesión
 
