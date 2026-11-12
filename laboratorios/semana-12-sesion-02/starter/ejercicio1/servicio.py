@@ -13,6 +13,7 @@ import os
 from datetime import datetime
 
 import joblib
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -37,8 +38,12 @@ class Viaje(BaseModel):
     # datetime, para que una fecha mal escrita se rechace) y las zonas son
     # obligatorias; distancia_km, pasajeros y metodo_pago pueden llegar
     # vacios (la preparacion los imputa), con valor por defecto None.
+    fecha_hora_inicio: datetime
     zona_origen: str
     zona_destino: str
+    distancia_km: float | None = None
+    pasajeros: float | None = None
+    metodo_pago: str | None = None
 
 
 @app.get("/salud")
@@ -51,6 +56,12 @@ def predecir(viaje: Viaje):
     # TODO 2: convierte el viaje en un DataFrame de una fila
     # (viaje.model_dump() lo da como diccionario), agrega las features y
     # estima la tarifa con el modelo.
-    tarifa = 0.0
+    viajes = pd.DataFrame([viaje.model_dump()], dtype=object)
+    # Un dato vacio llega como None, pero en el entrenamiento los vacios eran
+    # NaN: la preparacion imputa NaN y trata None como una categoria
+    # desconocida, y la tarifa cambia sin dar ningun error.
+    viajes = viajes.where(viajes.notna(), np.nan).astype({"distancia_km": float, "pasajeros": float})
+    viajes = agregar_features(viajes)
+    tarifa = modelo.predict(viajes[NUMERICAS + YA_LISTAS + CATEGORICAS])[0]
 
     return {"tarifa_estimada": round(float(tarifa), 2)}

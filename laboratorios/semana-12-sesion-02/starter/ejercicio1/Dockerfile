@@ -13,4 +13,4 @@ EXPOSE 8000
 
 # TODO 5: el comando que levanta el servicio con uvicorn en el puerto 8000,
 # escuchando en todas las interfaces del contenedor (host 0.0.0.0).
-CMD ["uvicorn", "servicio:app", "--port", "8000"]
+CMD ["uvicorn", "servicio:app", "--host", "0.0.0.0", "--port", "8000"]

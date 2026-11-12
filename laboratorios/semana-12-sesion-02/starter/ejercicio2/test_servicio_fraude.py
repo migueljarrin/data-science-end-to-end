@@ -45,6 +45,8 @@ def test_pago_valido():
     # TODO 3: comprueba que la respuesta tiene codigo 200 y que su JSON es
     # exactamente {"probabilidad_fraude": 0.25, "revisar": True}: con el
     # modelo de prueba, 0.25 alcanza el umbral de 0.10.
+    assert respuesta.status_code == 200
+    assert respuesta.json() == {"probabilidad_fraude": 0.25, "revisar": True}
 
 
 def test_pago_sin_monto_se_rechaza():
@@ -52,3 +54,4 @@ def test_pago_sin_monto_se_rechaza():
     pago.pop("monto")
     respuesta = cliente.post("/evaluar_pago", json=pago)
     # Comprueba que el servicio rechaza el pago con codigo 422.
+    assert respuesta.status_code == 422

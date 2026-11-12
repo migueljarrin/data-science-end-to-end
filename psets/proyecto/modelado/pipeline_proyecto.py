@@ -21,9 +21,9 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-# OBT del PSet 2 (ECU 911). El CSV va en data/raw/ de la raiz del repo (esta
-# en .gitignore, no se sube).
-RUTA_DATOS = Path(__file__).resolve().parents[3] / "data" / "raw" / "obt_emergencias_canton_dia.csv"
+# OBT del PSet 2 (ECU 911), exportada de Snowflake. El CSV va en
+# psets/proyecto/data/raw/ (esta en .gitignore, no se sube).
+RUTA_DATOS = Path(__file__).resolve().parent.parent / "data" / "raw" / "obt_emergencias_canton_dia.csv"
 
 # Division por fecha: el modelo predice el futuro, asi que entrena con el pasado
 # y se evalua con lo que viene despues. El P90 de la etiqueta usa el mismo corte.
@@ -41,21 +41,45 @@ CATEGORICAS = ["momento_feriado_t3", "region", "dia_semana_t3", "mes"]
 YA_LISTAS = ["es_fin_de_semana", "es_feriado"]
 
 
-def agregar_features(datos):
-    """La etiqueta y_3 y las 2 features de la Semana 9, Sesion 1."""
-    datos = datos.sort_values(["cod_canton", "fecha"]).reset_index(drop=True)
+def dia_semana_mas(dia_semana, dias):
+    """El dia de la semana (1 es lunes, 7 domingo) dentro de `dias` dias."""
+    return (dia_semana + dias - 1) % 7 + 1
 
-    # Objetivo y_3: alta demanda en t+3 (conteo > P90 del canton para el dia de la
-    # semana de t+3, calculado solo con entrenamiento).
-    datos["dia_semana_t3"] = (datos["dia_semana"] + 2) % 7 + 1
-    p90 = (datos[datos["fecha"] < CORTE]
-           .groupby(["cod_canton", "dia_semana_t3"])["obj_n_emergencias_t3"].quantile(0.9)
-           .rename("p90_t3"))
+
+def umbrales_p90(datos):
+    """El P90 del conteo de t+3 por canton y dia de la semana de t+3, solo con
+    el periodo de entrenamiento. Se calcula una vez, al entrenar, y se guarda
+    junto al modelo: al predecir, el conteo de t+3 todavia no existe."""
+    entrenamiento = datos[datos["fecha"] < CORTE]
+    entrenamiento = entrenamiento.assign(dia_semana_t3=dia_semana_mas(entrenamiento["dia_semana"], 3))
+    return (entrenamiento.groupby(["cod_canton", "dia_semana_t3"])["obj_n_emergencias_t3"]
+            .quantile(0.9).rename("p90_t3"))
+
+
+def rezagos_y_medias(datos):
+    """Los rezagos y las medias que build_obt.py (Spark, PSet 2) agrega a la
+    OBT, para cuando los datos no vienen de la OBT (el servicio). Los rezagos
+    son el conteo de hace k dias; las medias excluyen el dia t y necesitan la
+    ventana completa. Supone una fila por canton y dia, sin dias faltantes."""
+    datos = datos.sort_values(["cod_canton", "fecha"]).reset_index(drop=True)
+    emergencias = datos.groupby("cod_canton")["n_emergencias"]
+    for dias in [1, 7, 14, 28]:
+        datos[f"lag_{dias}d"] = emergencias.shift(dias)
+    for dias in [7, 28]:
+        datos[f"media_prev_{dias}d"] = emergencias.transform(
+            lambda serie: serie.shift(1).rolling(dias, min_periods=dias).mean())
+    return datos
+
+
+def calcular_features(datos, p90):
+    """Las 2 features de la Semana 9, Sesion 1, a partir de la historia de cada
+    canton, el calendario y los umbrales p90 guardados. La usan el
+    entrenamiento y el servicio, para que las features se calculen igual en
+    los dos. Necesita cod_canton, fecha, dia_semana, n_emergencias, es_feriado
+    y es_feriado_t3."""
+    datos = datos.sort_values(["cod_canton", "fecha"]).reset_index(drop=True)
+    datos["dia_semana_t3"] = dia_semana_mas(datos["dia_semana"], 3)
     datos = datos.join(p90, on=["cod_canton", "dia_semana_t3"])
-    datos["y_3"] = np.where(
-        datos["obj_n_emergencias_t3"].isna(), np.nan,
-        (datos["obj_n_emergencias_t3"] > datos["p90_t3"]).astype(float),
-    )
 
     # Feature 1: nivel reciente del mismo dia de la semana que t+3, relativo al umbral.
     emergencias = datos.groupby("cod_canton")["n_emergencias"]
@@ -74,6 +98,17 @@ def agregar_features(datos):
         [datos["es_feriado_t3"], es_feriado_en(4), es_feriado_en(2)],
         ["feriado", "vispera", "dia_despues"],
         default="normal",
+    )
+    return datos
+
+
+def agregar_features(datos):
+    """Para entrenar: las features y la etiqueta y_3, alta demanda en t+3 (el
+    conteo de t+3 supera el P90 del canton para el dia de la semana de t+3)."""
+    datos = calcular_features(datos, umbrales_p90(datos))
+    datos["y_3"] = np.where(
+        datos["obj_n_emergencias_t3"].isna(), np.nan,
+        (datos["obj_n_emergencias_t3"] > datos["p90_t3"]).astype(float),
     )
 
     # Los ultimos 3 dias de cada canton no tienen t+3 observado: no sirven para entrenar ni evaluar.
