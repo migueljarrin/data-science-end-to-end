@@ -51,3 +51,7 @@ _to_delete/
 predicciones.jsonl
 cobros.csv
 modelo_version.txt
+
+# El numero de version que exporta el servicio del proyecto: se regenera con
+# python -m servicio.exportar_modelo, junto al modelo, que tampoco se sube.
+psets/proyecto/servicio/modelo_version.txt

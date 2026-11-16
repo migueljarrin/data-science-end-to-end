@@ -34,6 +34,7 @@ api.referencias = {
         [("0101", dia) for dia in range(1, 8)], names=["cod_canton", "dia_semana_t3"]), name="p90_t3"),
     "regiones": {"0101": "Sierra"},
 }
+api.version_servida = "7"
 
 
 def modelo_de_prueba():
@@ -50,7 +51,7 @@ cliente = TestClient(api.app)
 def test_salud():
     respuesta = cliente.get("/salud")
     assert respuesta.status_code == 200
-    assert respuesta.json() == {"estado": "ok", "modelo_cargado": True, "run_id": "corrida-de-prueba"}
+    assert respuesta.json() == {"estado": "ok", "modelo_cargado": True, "version_modelo": "7"}
 
 
 def test_prediccion_valida():
@@ -62,8 +63,15 @@ def test_prediccion_valida():
         "fecha_objetivo": "2025-06-04",
         "probabilidad_alta_demanda": 0.25,
         "alerta": False,
-        "run_id": "corrida-de-prueba",
+        "version_modelo": "7",
     }
+
+
+def test_cada_prediccion_dice_que_version_la_calculo():
+    # Quien reciba una alerta tiene que poder saber que version del modelo la
+    # calculo, aunque el servicio se haya actualizado despues.
+    respuesta = cliente.post("/predecir", json=DIA)
+    assert respuesta.json()["version_modelo"] == "7"
 
 
 def test_historia_incompleta_se_rechaza():

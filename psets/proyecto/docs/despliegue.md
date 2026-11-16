@@ -31,3 +31,33 @@ Un servicio **en línea** respondería en el momento a quien pregunte por un can
 - La decisión (el turno de *t+3*) no cambia por tener la respuesta en milisegundos en vez de en horas.
 
 Lo que sí se pierde con el lote es **la reacción durante el día**: si a mediodía empieza una emergencia grande (un deslave, un accidente múltiple), la tabla de esa noche no lo refleja hasta el siguiente lote. Detectar picos dentro de la jornada sería otro problema: un modelo distinto, con datos por hora o en streaming, como se describe en la sección "Batch vs. streaming" del PSet 2. Para planificar turnos a tres días, el lote nocturno alcanza.
+
+## Versionado y registro
+
+El modelo vive en el registro de modelos de MLflow como **`ecu911-alta-demanda`**. Cada vez que se reentrena, `python -m servicio.registrar_modelo <min_samples_leaf>` (desde `psets/proyecto/`) crea una versión nueva, con su corrida en el experimento `ecu911-alta-demanda-registro`: los hiperparámetros, la fecha de corte, la huella del CSV y las métricas. Ninguna versión reemplaza a otra.
+
+| versión | modelo | AP prueba | AP entrenamiento | brecha | alias |
+|---|---|---|---|---|---|
+| 1 | bosque, `min_samples_leaf=100` | **0.2327** | 0.2514 | 0.0187 | `produccion` |
+| 2 | bosque, `min_samples_leaf=300` | 0.2265 | 0.2096 | −0.0170 | — |
+
+**En producción está la versión 1**, con una precisión promedio (AP) de 0.2327 en el periodo de prueba (julio de 2025 en adelante). Es el mismo bosque que se eligió en la Semana 11.
+
+**Criterio para mover el alias.** Una versión nueva pasa a `produccion` si cumple las dos condiciones:
+
+1. Su AP en el periodo de prueba es mayor que la de la versión en producción.
+2. No se sobreajusta: la brecha entre la AP de entrenamiento y la de prueba es menor que 0.05.
+
+La versión 2 no pasó: no se sobreajusta, pero detecta peor (0.2265 frente a 0.2327). Una diferencia de AP tan chica (0.006) está por debajo de la variación entre pliegues de la validación temporal de la Semana 11 (desviación 0.028), así que antes de promover una versión que gane por tan poco conviene repetir esa validación.
+
+**Quién decide y dónde queda escrito.** Lo decide quien mantiene el modelo, a mano, con `python -m servicio.promover <versión> "<motivo>"`. MLflow no guarda la historia de los alias, así que `promover.py` deja tres etiquetas en la versión promovida: `promovida_el` (fecha y hora), `motivo` y `reemplaza_a` (la versión que estaba antes). Se ven en la interfaz de MLflow, pestaña **Models**, en cada versión.
+
+**Cómo llega una versión al servicio.** `python -m servicio.exportar_modelo` exporta la versión con el alias `produccion` a `servicio/modelo.joblib` y guarda su número en `servicio/modelo_version.txt`. La imagen de Docker lleva los dos archivos adentro, así que el contenedor no necesita llegar al servidor de MLflow. `/salud` y cada predicción responden `version_modelo`.
+
+**Volver a la versión anterior.** Ninguna versión se borra, así que volver es mover el alias y reconstruir:
+
+1. `python -m servicio.promover <versión anterior> "vuelta atrás: <qué falló>"` (la etiqueta `reemplaza_a` de la versión actual dice cuál era la anterior).
+2. `python -m servicio.exportar_modelo`.
+3. `docker build -f servicio/Dockerfile -t servicio-ecu911 .` y volver a levantar el contenedor.
+
+El servicio lee el modelo solo al arrancar: si se mueve el alias y no se reconstruye la imagen, sigue sirviendo la versión anterior. Para volver en segundos, sin reconstruir, conviene etiquetar cada imagen con su versión (`servicio-ecu911:v1`) y guardar la anterior.

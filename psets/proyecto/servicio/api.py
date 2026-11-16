@@ -27,6 +27,7 @@ from modelado.pipeline_proyecto import CATEGORICAS, NUMERICAS, YA_LISTAS, calcul
 CARPETA = Path(__file__).resolve().parent
 RUTA_MODELO = Path(os.environ.get("RUTA_MODELO", CARPETA / "modelo.joblib"))
 RUTA_REFERENCIAS = Path(os.environ.get("RUTA_REFERENCIAS", CARPETA / "referencias.joblib"))
+RUTA_VERSION = Path(os.environ.get("RUTA_VERSION", CARPETA / "modelo_version.txt"))
 
 # El umbral de la Semana 11, Sesion 2: el que minimiza el costo en la
 # validacion temporal (un dia de alta demanda sin detectar cuesta 5, una falsa
@@ -35,11 +36,15 @@ UMBRAL = 0.66
 # lag_28d y media_prev_28d necesitan los 28 dias anteriores a t.
 DIAS_HISTORIA = 29
 
-# El modelo y sus referencias se cargan una sola vez, al arrancar.
+# El modelo, su version en el registro y sus referencias se cargan una sola
+# vez, al arrancar. La version viene del archivo que dejo exportar_modelo.py:
+# el contenedor no necesita llegar al servidor de MLflow para saberla.
 modelo = None
+version_servida = None
 referencias = None
-if RUTA_MODELO.exists() and RUTA_REFERENCIAS.exists():
+if RUTA_MODELO.exists() and RUTA_REFERENCIAS.exists() and RUTA_VERSION.exists():
     modelo = joblib.load(RUTA_MODELO)
+    version_servida = RUTA_VERSION.read_text().strip()
     referencias = joblib.load(RUTA_REFERENCIAS)
 
 app = FastAPI(title="Alta demanda de emergencias del ECU 911")
@@ -63,7 +68,7 @@ def salud():
     return {
         "estado": "ok",
         "modelo_cargado": modelo is not None,
-        "run_id": referencias["run_id"] if referencias is not None else None,
+        "version_modelo": version_servida,
     }
 
 
@@ -105,5 +110,5 @@ def predecir(dia: CantonDia):
         "fecha_objetivo": dia.fecha + timedelta(days=3),
         "probabilidad_alta_demanda": round(probabilidad, 4),
         "alerta": probabilidad >= UMBRAL,
-        "run_id": referencias["run_id"],
+        "version_modelo": version_servida,
     }

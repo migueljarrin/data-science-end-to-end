@@ -36,7 +36,7 @@ El servicio (`servicio/api.py`) recibe lo que el ECU 911 sabe de un cantón al c
 python -m servicio.exportar_modelo
 ```
 
-Busca en el experimento `ecu911-alta-demanda-t3` la corrida marcada con `candidato` = `final` (hoy, el bosque con `min_samples_leaf=100`, `run_id` `a7c9689b915a4eb7ba39e5ba381ef6cb`) y deja dos archivos que no se suben al repositorio: `servicio/modelo.joblib` (el pipeline entrenado) y `servicio/referencias.joblib` (el umbral P90 de cada cantón y día de la semana, y la región de cada cantón, que el servicio necesita y la petición no trae).
+Exporta la versión del modelo registrado `ecu911-alta-demanda` que tiene el alias `produccion` (hoy, la versión 1: el bosque con `min_samples_leaf=100`) y deja tres archivos que no se suben al repositorio: `servicio/modelo.joblib` (el pipeline entrenado), `servicio/modelo_version.txt` (su número de versión) y `servicio/referencias.joblib` (el umbral P90 de cada cantón y día de la semana, y la región de cada cantón, que el servicio necesita y la petición no trae). Cómo se registran las versiones y se mueve el alias está en la sección "Versionado y registro" de [`docs/despliegue.md`](docs/despliegue.md).
 
 **2. Construir y levantar el contenedor**, desde `psets/proyecto/` (la imagen necesita `modelado/` además de `servicio/`):
 
@@ -45,7 +45,7 @@ docker build -f servicio/Dockerfile -t servicio-ecu911 .
 docker run -p 8000:8000 servicio-ecu911
 ```
 
-Sin Docker: `uvicorn servicio.api:app --port 8000`. La documentación interactiva queda en `http://localhost:8000/docs`, y `/salud` dice si el modelo está cargado y qué `run_id` tiene.
+Sin Docker: `uvicorn servicio.api:app --port 8000`. La documentación interactiva queda en `http://localhost:8000/docs`, y `/salud` dice si el modelo está cargado y qué versión sirve.
 
 **3. Pedir una predicción.** El cuerpo trae el cantón, el día *t*, las emergencias de los 29 días de *t−28* a *t* (la última es la del día *t*), los conteos por servicio del día *t* y los feriados entre *t* y *t+4*. Quito al cierre del 29 de diciembre de 2025:
 
@@ -54,7 +54,7 @@ curl -X POST localhost:8000/predecir -H "Content-Type: application/json" -d '{"c
 ```
 
 ```
-{"cod_canton":"1701","fecha_objetivo":"2026-01-01","probabilidad_alta_demanda":0.8337,"alerta":true,"run_id":"a7c9689b915a4eb7ba39e5ba381ef6cb"}
+{"cod_canton":"1701","fecha_objetivo":"2026-01-01","probabilidad_alta_demanda":0.8337,"alerta":true,"version_modelo":"1"}
 ```
 
 `alerta` es `true` cuando la probabilidad alcanza 0.66, el umbral que minimizó el costo en la validación temporal (un día de alta demanda sin detectar cuesta 5, una falsa alarma 1). Si la historia no trae 29 días, la respuesta es 422; si el cantón no existe, 404. Las pruebas están en `servicio/test_api.py` y corren con `pytest psets/proyecto`, también en GitHub Actions.

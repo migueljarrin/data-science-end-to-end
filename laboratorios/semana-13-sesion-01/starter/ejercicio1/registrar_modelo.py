@@ -44,6 +44,7 @@ with mlflow.start_run(run_name=f"red-{neuronas}"):
     # registered_model_name=NOMBRE. log_model devuelve informacion del
     # modelo: su atributo registered_model_version es el numero de la
     # version nueva.
-    version = None
+    info = mlflow.sklearn.log_model(modelo, "modelo", registered_model_name=NOMBRE)
+    version = info.registered_model_version
 
 print(f"Version {version} de {NOMBRE}: red de {neuronas} neuronas, MAE {mae:.4f}")
