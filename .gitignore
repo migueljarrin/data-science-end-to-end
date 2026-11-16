@@ -46,3 +46,8 @@ mlartifacts/
 
 # Material reemplazado (no se sube)
 _to_delete/
+
+# Registros del servicio y del monitoreo (Semana 13): se regeneran al correr
+predicciones.jsonl
+cobros.csv
+modelo_version.txt
